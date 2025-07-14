@@ -8,6 +8,7 @@ from torch import nn
 from .common import Configs
 from .transformer_encoder import TransformerEncoderBlock
 from .transformer_decoder import TransformerDecoderBlock
+from .positional_encoding import PositionalEncoding
 
 
 class Transformer(nn.Module):
@@ -29,6 +30,8 @@ class Transformer(nn.Module):
         self.d_ff = d_ff
 
         self.dropout = dropout
+
+        self.positional_encoding = PositionalEncoding(d_model=d_model, dropout=dropout)
 
         self.encoder = nn.Sequential(
             *(
@@ -55,9 +58,11 @@ class Transformer(nn.Module):
 
     def forward(self, source: Tensor, target: Tensor) -> Tensor:
         """Run the input through every Transformer block in sequence."""
-        encoder_out = cast(Tensor, self.encoder(source))
-        decoder_out = target
+        _source = self.positional_encoding(source)
+        _target = self.positional_encoding(target)
 
+        encoder_out: Tensor = self.encoder(_source)
+        decoder_out = _target
         for block in self.decoder:
             decoder_out = block(decoder_out, encoder_out)
 
