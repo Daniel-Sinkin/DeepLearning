@@ -1,8 +1,16 @@
+"""
+danielsinkin97@gmail.com
+
+linear.py
+"""
+
 import torch
 from torch import nn
 
 
 class Dropout(nn.Module):
+    """Dropout"""
+
     def __init__(self, p: float):
         super().__init__()  # type: ignore
 
@@ -11,6 +19,7 @@ class Dropout(nn.Module):
         self.p = p
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """Dropout is not active on testing."""
         if not self.training or self.p == 0.0:
             return x
         if self.p == 1.0:
