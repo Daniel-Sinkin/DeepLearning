@@ -52,19 +52,23 @@ class TransformerDecoderBlock(nn.Module):
         """
         if Configs.use_post_norm:
             x = x + cast(Tensor, self.self_attn(x))
-            x = self.ln_self_attn(x)
+            x = self.ln_self_attn(x, key_padding_mask=target_key_padding_mask)
 
-            x = x + self.cross_attn(x, encoder_output)
+            x = x + self.cross_attn(
+                x, encoder_output, key_padding_mask=memory_key_padding_mask
+            )
             x = self.ln_cross_attn(x)
 
             x = x + cast(Tensor, self.feed_forward(x))
             x = self.ln_ff(x)
         else:
-            x_norm = self.ln_self_attn(x)
+            x_norm = self.ln_self_attn(x, key_padding_mask=target_key_padding_mask)
             x = x + cast(Tensor, self.self_attn(x_norm))
 
             x_norm = self.ln_cross_attn(x)
-            x = x + self.cross_attn(x_norm, encoder_output)
+            x = x + self.cross_attn(
+                x_norm, encoder_output, key_padding_mask=memory_key_padding_mask
+            )
 
             x_norm = self.ln_ff(x)
             x = x + cast(Tensor, self.feed_forward(x_norm))
