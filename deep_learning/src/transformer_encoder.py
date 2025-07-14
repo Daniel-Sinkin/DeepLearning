@@ -13,19 +13,21 @@ class TransformerEncoderBlock(nn.Module):
     """Pre-norm Transformer block (MHSA -> FFN) with residual connections"""
 
     def __init__(
-        self,
-        d_model: int,
-        n_head: int,
-        d_ff: int,
-        dropout: float,
+        self, d_model: int, n_head: int, d_ff: int, dropout: float, configs: Configs
     ):
         super().__init__()  # type: ignore
+
+        self.configs = configs
 
         self.ln_mhsa = nn.LayerNorm(d_model, eps=Configs.norm_eps)
         self.ln_ff = nn.LayerNorm(d_model, eps=Configs.norm_eps)
 
         self.mhsa = MultiHeadSelfAttention(
-            d_model=d_model, n_head=n_head, is_causal=False, dropout=dropout
+            d_model=d_model,
+            n_head=n_head,
+            is_causal=False,
+            dropout=dropout,
+            configs=self.configs,
         )
         self.feed_forward = nn.Sequential(
             nn.Linear(d_model, d_ff),

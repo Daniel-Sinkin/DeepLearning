@@ -8,7 +8,7 @@ from torch import Tensor
 from torch import nn
 import torch.nn.functional as F
 
-from .common import Configs, assert_same_shape, assert_shape, BROADCAST_SHAPE
+from .common import Configs, assert_same_shape, assert_shape, BROADCAST_SHAPE, Debug
 
 
 class _MultiHeadAttentionCore(nn.Module):
@@ -18,8 +18,12 @@ class _MultiHeadAttentionCore(nn.Module):
         d_model: int,
         n_head: int,
         dropout: float,
+        configs: Configs,
     ):
         super().__init__()  # type: ignore
+
+        self.configs = configs
+
         assert d_model % n_head == 0, "d_model must be divisible by n_head"
 
         self.d_model = d_model
@@ -99,7 +103,7 @@ class _MultiHeadAttentionCore(nn.Module):
             )
             similarity = torch.where(causal_mask, similarity, neg_inf)
 
-            if Configs.asserts_enabled:
+            if Debug:
                 assert_shape(
                     causal_mask, (BROADCAST_SHAPE, BROADCAST_SHAPE, len_q, len_q)
                 )
@@ -138,16 +142,23 @@ class MultiHeadSelfAttention(nn.Module):
         d_model: int,
         n_head: int,
         dropout: float,
+        configs: Configs,
     ):
         """MHSA"""
         super().__init__()  # type: ignore
 
+        self.configs = configs
+
         self.is_causal = is_causal
         self.core = _MultiHeadAttentionCore(
-            is_causal=is_causal, d_model=d_model, n_head=n_head, dropout=dropout
+            is_causal=is_causal,
+            d_model=d_model,
+            n_head=n_head,
+            dropout=dropout,
+            configs=self.configs,
         )
 
-        if Configs.use_fused_qkv:
+        if self.configs.use_fused_qkv:
             self.W_QKV = nn.Linear(d_model, 3 * d_model)
             self.W_Q = self.W_K = self.W_V = None
         else:
@@ -160,15 +171,15 @@ class MultiHeadSelfAttention(nn.Module):
         """
         Multi Head Self Attention
         """
-        if Configs.asserts_enabled:
+        if Debug.asserts_enabled:
             _, _, d_model_input = x.shape
             assert x.ndim == 3, f"Expected (B, L, D), got {x.ndim=}"
             assert (
                 d_model_input == self.core.d_model
             ), f"{d_model_input=} != {self.core.d_model=}"
 
-        if Configs.use_fused_qkv:
-            if Configs.asserts_enabled:
+        if self.configs.use_fused_qkv:
+            if Debug.asserts_enabled:
                 assert all(weight is None for weight in (self.W_Q, self.W_K, self.W_V))
             assert self.W_QKV is not None
             qkv: Tensor = self.W_QKV(x)
@@ -195,22 +206,20 @@ class MultiHeadCrossAttention(nn.Module):
         K and V come from the encoder states.
     """
 
-    def __init__(
-        self,
-        d_model: int = 768,
-        n_head: int = 12,
-        dropout: float = 0.1,
-    ):
+    def __init__(self, d_model: int, n_head: int, dropout: float, configs: Configs):
         super().__init__()  # type: ignore
+
+        self.configs = configs
 
         self.core = _MultiHeadAttentionCore(
             is_causal=False,
             d_model=d_model,
             n_head=n_head,
             dropout=dropout,
+            configs=self.configs,
         )
 
-        if Configs.use_fused_qkv:
+        if self.configs.use_fused_qkv:
             self.W_Q = nn.Linear(d_model, d_model)
             self.W_KV = nn.Linear(d_model, 2 * d_model)
             self.W_K = self.W_V = None
@@ -230,13 +239,13 @@ class MultiHeadCrossAttention(nn.Module):
         batch_q, _, d_q = q_input.shape
         batch_kv, _, d_kv = kv_input.shape
 
-        if Configs.asserts_enabled:
+        if Debug.asserts_enabled:
             assert (
                 d_q == d_kv == self.core.d_model
             ), f"{d_q=}, {d_kv=} != {self.core.d_model=}"
             assert batch_q == batch_kv, f"{batch_q=} != {batch_kv=}"
 
-        if Configs.use_fused_qkv:
+        if self.configs.use_fused_qkv:
             assert self.W_K is None
             assert self.W_V is None
             assert self.W_KV is not None

@@ -3,7 +3,7 @@
 from torch import Tensor
 from torch import nn
 
-from .common import Configs, assert_shape
+from .common import Configs, assert_shape, get_default_configs, Debug
 from .transformer_encoder import TransformerEncoderBlock
 from .transformer_decoder import TransformerDecoderBlock
 from .positional_encoding import PositionalEncoding
@@ -33,8 +33,14 @@ class Transformer(nn.Module):
         source_vocab_size: int,
         target_vocab_size: int,
         pad_id: int = 0,
+        configs: Configs | None = None,
     ):
         super().__init__()  # type: ignore
+
+        if configs is None:
+            self.configs = get_default_configs()
+        else:
+            self.configs = configs
 
         self.d_model = d_model
         self.n_head = n_head
@@ -53,10 +59,10 @@ class Transformer(nn.Module):
             self.target_vocab_size, d_model, padding_idx=pad_id
         )
         self.source_positional_encoding = PositionalEncoding(
-            d_model=d_model, dropout=dropout
+            d_model=d_model, dropout=dropout, configs=self.configs
         )
         self.target_positional_encoding = PositionalEncoding(
-            d_model=d_model, dropout=dropout
+            d_model=d_model, dropout=dropout, configs=self.configs
         )
 
         self.lm_head = nn.Linear(d_model, target_vocab_size, bias=False)
@@ -65,14 +71,22 @@ class Transformer(nn.Module):
 
         self.encoder = nn.ModuleList(
             TransformerEncoderBlock(
-                d_model=d_model, n_head=n_head, d_ff=d_ff, dropout=dropout
+                d_model=d_model,
+                n_head=n_head,
+                d_ff=d_ff,
+                dropout=dropout,
+                configs=self.configs,
             )
             for _ in range(n_layer)
         )
 
         self.decoder = nn.ModuleList(
             TransformerDecoderBlock(
-                d_model=d_model, n_head=n_head, d_ff=d_ff, dropout=dropout
+                d_model=d_model,
+                n_head=n_head,
+                d_ff=d_ff,
+                dropout=dropout,
+                configs=self.configs,
             )
             for _ in range(n_layer)
         )
@@ -95,7 +109,7 @@ class Transformer(nn.Module):
         """Run the input through every Transformer block in sequence."""
         batch, len_source = source.shape
         batch2, len_target = target.shape
-        if Configs.asserts_enabled:
+        if Debug.asserts_enabled:
             assert batch == batch2
 
         _source = self.source_embedding(source)

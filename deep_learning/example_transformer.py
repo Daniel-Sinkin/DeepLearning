@@ -17,7 +17,7 @@ import torch.profiler
 
 from src.transformer import Transformer
 
-from src.common import Configs
+from src.common import get_default_configs
 
 
 class ProfilerMode(Enum):
@@ -77,7 +77,8 @@ def main() -> None:
     """
     args = parse_args()
 
-    Configs.print()
+    configs = get_default_configs()
+    configs.print()
 
     if args.mps or args.mps_f32:
         if not torch.backends.mps.is_available():
@@ -111,6 +112,7 @@ def main() -> None:
             n_layer=6,
             dropout=0.1,
             pad_id=0,
+            configs=configs,
         )
         .eval()
         .to(device=device, dtype=dtype)
