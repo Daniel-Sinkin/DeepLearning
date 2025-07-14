@@ -10,7 +10,7 @@ class Transformer(nn.Module):
     """Stack of TransformerBlock for the encoder."""
 
     def __init__(
-        self, d_model: int = 768, n_head: int = 12, d_ff: int = 2024, n_layer: int = 12
+        self, d_model: int = 768, n_head: int = 12, d_ff: int = 2048, n_layer: int = 12
     ):
         super().__init__()  # type: ignore
 
