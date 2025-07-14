@@ -7,7 +7,7 @@ transformer.py
 from torch import Tensor
 from torch import nn
 
-from .common import Configs, assert_shape, get_default_configs, Debug
+from .common import Configs, assert_shape, get_default_configs
 from .transformer_encoder import TransformerEncoderBlock
 from .transformer_decoder import TransformerDecoderBlock
 from .positional_encoding import PositionalEncoding
@@ -113,7 +113,7 @@ class Transformer(nn.Module):
         """Run the input through every Transformer block in sequence."""
         batch, len_source = source.shape
         batch2, len_target = target.shape
-        if Debug.asserts_enabled:
+        if self.configs.asserts_enabled:
             assert batch == batch2
 
         _source: Tensor = self.source_embedding(source)

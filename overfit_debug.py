@@ -128,9 +128,6 @@ for epoch in range(1, EPOCHS + 1):
         break
 
 
-# --------------------------------------------------------------------------- #
-# Demo: Greedy decoding
-# --------------------------------------------------------------------------- #
 def greedy(src_tensor, src_pad, max_len=MAX_SENT_LEN):
     model.eval()
     tgt = torch.tensor([[vocab_en[BOS]]], device=DEVICE)

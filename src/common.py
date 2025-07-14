@@ -11,13 +11,6 @@ from torch import Tensor
 
 
 @dataclass(frozen=True)
-class Debug:
-    """Debug Settings"""
-
-    asserts_enabled: bool = False
-
-
-@dataclass(frozen=True)
 class Configs:
     """Holds different settings for the transforemr"""
 
@@ -26,6 +19,8 @@ class Configs:
     use_final_layer_norm: bool = False
     use_original_init: bool = True  # xavier with uniform bias
     tie_target_embedding_and_lm_head_weights: bool = False
+
+    asserts_enabled: bool = True
 
     norm_eps: float = 1e-6  # Tensorflow default, 1e-5 is pytorch default
 
@@ -54,14 +49,12 @@ def get_default_configs() -> Configs:
 
 def assert_shape(x: Tensor, expected_shape: torch.Size | tuple[int, ...]) -> None:
     """Wrapper around shape assertion that is more readable"""
-    if Debug.asserts_enabled:
-        assert x.shape == expected_shape, f"{x.shape=} != {expected_shape=}"
+    assert x.shape == expected_shape, f"{x.shape=} != {expected_shape=}"
 
 
 def assert_same_shape(x: Tensor, y: Tensor) -> None:
     """Check that the shape of the two tensors is the same"""
-    if Debug.asserts_enabled:
-        assert x.shape == y.shape, f"{x.shape}!={y.shape}"
+    assert x.shape == y.shape, f"{x.shape}!={y.shape}"
 
 
 # For shape asserts so we have no magic numbers floating around

@@ -9,7 +9,7 @@ import math
 import torch
 from torch import nn, Tensor
 
-from .common import Debug, Configs
+from .common import Configs
 
 
 class PositionalEncoding(nn.Module):
@@ -27,7 +27,7 @@ class PositionalEncoding(nn.Module):
         self.scale = math.sqrt(d_model)
         self.dropout = nn.Dropout(dropout)
 
-        if Debug.asserts_enabled:
+        if self.configs.asserts_enabled:
             assert d_model > 0, f"{d_model=}, must be > 0"
             assert max_len > 0, f"{max_len=}, must be > 0"
             assert d_model % 2 == 0, f"{d_model=}, must be even to interleave sin/cos"
@@ -48,7 +48,7 @@ class PositionalEncoding(nn.Module):
         x : (B, L, D)
         """
         _, L, D = x.shape
-        if Debug.asserts_enabled:
+        if self.configs.asserts_enabled:
             assert x.ndim == 3, f"expected 3D input (B, L, D), got {x.shape=}"
             assert (
                 D == self.pe.shape[-1]  # type: ignore
