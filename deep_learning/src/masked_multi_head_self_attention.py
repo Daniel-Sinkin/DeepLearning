@@ -15,13 +15,14 @@ class MaskedMultiHeadSelfAttention(nn.Module):
     Causal masked multi-head self-attention (MSHA)
     """
 
-    def __init__(self, d_model: int = 768, n_head: int = 12):
+    def __init__(self, d_model: int = 768, n_head: int = 12, dropout: float = 0.1):
         super().__init__()  # type: ignore
         assert d_model % n_head == 0, "d_model must be divisible by n_head"
 
         self.d_model = d_model
         self.n_head = n_head
         self.d_h = d_model // n_head
+        self.dropout = nn.Dropout(dropout)
 
         if Configs.use_fused_qkv:
             self.W_QKV = nn.Linear(d_model, 3 * d_model)
@@ -103,6 +104,7 @@ class MaskedMultiHeadSelfAttention(nn.Module):
 
         attention_weights = F.softmax(similarity, dim=-1)
         assert_shape(attention_weights, (batch, self.n_head, seq_len, seq_len))
+        attention_weights = self.dropout(attention_weights)
 
         attention_output = torch.matmul(attention_weights, values)
         assert_shape(attention_output, (batch, self.n_head, seq_len, self.d_h))
@@ -115,5 +117,6 @@ class MaskedMultiHeadSelfAttention(nn.Module):
 
         output: Tensor = self.W_O(attention_output)
         assert_shape(output, (batch, seq_len, self.d_model))
+        output = self.dropout(attention_weights)
 
         return output
