@@ -12,6 +12,7 @@ from torch import Tensor
 from torch import nn
 import torch.nn.functional as F
 
+from src.dropout import Dropout
 from src.linear import Linear
 
 from .common import Configs, assert_same_shape, assert_shape, BROADCAST_SHAPE
@@ -35,7 +36,7 @@ class _MultiHeadAttentionCore(nn.Module):
         self.d_model = d_model
         self.n_head = n_head
         self.d_h = d_model // n_head
-        self.dropout = nn.Dropout(dropout)
+        self.dropout = Dropout(dropout)
 
         self.is_causal = is_causal
         if self.is_causal:

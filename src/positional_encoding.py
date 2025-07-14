@@ -9,6 +9,8 @@ import math
 import torch
 from torch import nn, Tensor
 
+from src.dropout import Dropout
+
 from .common import Configs
 
 
@@ -25,7 +27,7 @@ class PositionalEncoding(nn.Module):
         self.configs = configs
 
         self.scale = math.sqrt(d_model)
-        self.dropout = nn.Dropout(dropout)
+        self.dropout = Dropout(dropout)
 
         if self.configs.asserts_enabled:
             assert d_model > 0, f"{d_model=}, must be > 0"

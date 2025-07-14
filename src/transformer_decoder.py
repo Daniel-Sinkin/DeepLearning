@@ -9,6 +9,7 @@ from typing import cast
 from torch import Tensor
 from torch import nn
 
+from src.dropout import Dropout
 from src.linear import Linear
 
 from .multi_head_attention import MultiHeadSelfAttention, MultiHeadCrossAttention
@@ -42,7 +43,7 @@ class TransformerDecoderBlock(nn.Module):
         self.feed_forward = nn.Sequential(
             Linear(d_model, d_ff, bias=True, configs=self.configs),
             nn.ReLU(),
-            nn.Dropout(dropout),
+            Dropout(dropout),
             Linear(d_ff, d_model, bias=True, configs=self.configs),
         )
 
