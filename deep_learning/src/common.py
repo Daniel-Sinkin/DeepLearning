@@ -37,6 +37,7 @@ class Configs:
     use_post_norm: bool = True
     use_final_layer_norm: bool = False
     use_original_init: bool = True  # xavier with uniform bias
+    tie_target_embedding_and_lm_head_weights: bool = False
 
     norm_eps: float = 1e-6  # Tensorflow default, 1e-5 is pytorch default
 

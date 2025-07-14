@@ -60,7 +60,8 @@ class Transformer(nn.Module):
         )
 
         self.lm_head = nn.Linear(d_model, target_vocab_size, bias=False)
-        self.lm_head.weight = self.target_embedding.weight
+        if Configs.tie_target_embedding_and_lm_head_weights:
+            self.lm_head.weight = self.target_embedding.weight
 
         self.encoder = nn.ModuleList(
             TransformerEncoderBlock(

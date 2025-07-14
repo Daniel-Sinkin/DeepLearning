@@ -115,7 +115,6 @@ def main() -> None:
         .eval()
         .to(device=device, dtype=dtype)
     )
-    torch.set_num_threads(torch.get_num_threads() or 8)
 
     batch, source_len, target_len = 8, 256, 64
     source = torch.randint(0, 32_000, (batch, source_len), device=device)

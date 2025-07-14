@@ -30,7 +30,6 @@ class TransformerDecoderBlock(nn.Module):
             nn.ReLU(),
             nn.Dropout(dropout),
             nn.Linear(d_ff, d_model),
-            nn.Dropout(dropout),
         )
 
     def forward(

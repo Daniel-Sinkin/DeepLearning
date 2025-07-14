@@ -39,9 +39,9 @@ class PositionalEncoding(nn.Module):
         """
         x : (B, L, D)
         """
+        _, L, D = x.shape
         if Configs.asserts_enabled:
             assert x.ndim == 3, f"expected 3D input (B, L, D), got {x.shape=}"
-            _, L, D = x.shape
             assert (
                 D == self.pe.shape[-1]  # type: ignore
             ), f"{D=} != {self.pe.shape[-1]=}"  # type: ignore

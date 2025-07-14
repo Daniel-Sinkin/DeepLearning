@@ -25,7 +25,7 @@ class TransformerEncoderBlock(nn.Module):
         self.ln_ff = nn.LayerNorm(d_model, eps=Configs.norm_eps)
 
         self.mhsa = MultiHeadSelfAttention(
-            d_model=d_model, n_head=n_head, is_causal=False
+            d_model=d_model, n_head=n_head, is_causal=False, dropout=dropout
         )
         self.feed_forward = nn.Sequential(
             nn.Linear(d_model, d_ff),

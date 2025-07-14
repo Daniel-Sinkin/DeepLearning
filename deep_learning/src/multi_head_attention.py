@@ -79,6 +79,7 @@ class _MultiHeadAttentionCore(nn.Module):
 
         if self.is_causal:
             assert len_q == len_k, f"Causal masking needs {len_q=}=={len_k}"
+            # TODO: Cache max size version of this and just reuse instead of re-definign each time
             causal_mask = (
                 torch.tril(
                     torch.ones(len_q, len_q, dtype=torch.bool, device=similarity.device)
@@ -124,9 +125,9 @@ class MultiHeadSelfAttention(nn.Module):
     def __init__(
         self,
         is_causal: bool,
-        d_model: int = 768,
-        n_head: int = 12,
-        dropout: float = 0.1,
+        d_model: int,
+        n_head: int,
+        dropout: float,
     ):
         super().__init__()  # type: ignore
 
