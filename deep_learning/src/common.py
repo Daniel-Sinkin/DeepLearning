@@ -32,6 +32,7 @@ class Configs:
 
     @classmethod
     def print(cls) -> None:
+        """Utility function that prints the settings."""
         print("Configs:")
         print(f"\tuse_fused_qkv   : {cls.use_fused_qkv}")
         print(f"\tasserts_enabled : {cls.asserts_enabled}")
