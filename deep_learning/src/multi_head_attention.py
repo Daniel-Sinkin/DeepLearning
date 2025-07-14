@@ -28,7 +28,6 @@ class _MultiHeadAttentionCore(nn.Module):
         self.dropout = nn.Dropout(dropout)
 
         self.is_causal = is_causal
-        self._causal_mask = None
         if self.is_causal:
             self.register_buffer("_causal_mask", torch.empty(0, dtype=torch.bool))
 
@@ -83,11 +82,14 @@ class _MultiHeadAttentionCore(nn.Module):
 
         if self.is_causal:
             assert len_q == len_k, f"Causal masking needs {len_q=}=={len_k}"
-            if self._causal_mask.size(-1) < len_q:  # type: ignore
+            if self._causal_mask.size(-1) < len_q:  # type: ignore # pylint: disable=access-member-before-definition
                 full_mask = torch.tril(
                     torch.ones(len_q, len_q, dtype=torch.bool, device=queries.device)
                 )
-                self._causal_mask = full_mask.unsqueeze(0).unsqueeze(0)
+                new_mask = full_mask.unsqueeze(0).unsqueeze(0)
+                self._causal_mask = (  # pylint: disable=attribute-defined-outside-init
+                    new_mask
+                )
                 assert_shape(
                     self._causal_mask, (BROADCAST_SHAPE, BROADCAST_SHAPE, len_q, len_q)
                 )
@@ -137,6 +139,7 @@ class MultiHeadSelfAttention(nn.Module):
         n_head: int,
         dropout: float,
     ):
+        """MHSA"""
         super().__init__()  # type: ignore
 
         self.is_causal = is_causal
