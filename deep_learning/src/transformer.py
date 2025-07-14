@@ -1,7 +1,5 @@
 """danielsinkin97@gmail.com"""
 
-from typing import cast
-
 from torch import Tensor
 from torch import nn
 
@@ -9,6 +7,17 @@ from .common import Configs
 from .transformer_encoder import TransformerEncoderBlock
 from .transformer_decoder import TransformerDecoderBlock
 from .positional_encoding import PositionalEncoding
+
+
+def init_weights_original(m: nn.Module) -> None:
+    """
+    The 2017 Vasvani et al. Paper uses xavier with 0 init,
+    pytorch uses kaiming with uniform bias by default
+    """
+    if isinstance(m, nn.Linear):
+        nn.init.xavier_uniform_(m.weight)
+        if m.bias is not None:  # type: ignore
+            nn.init.zeros_(m.bias)
 
 
 class Transformer(nn.Module):
@@ -55,6 +64,9 @@ class Transformer(nn.Module):
             self.ln_final = nn.LayerNorm(d_model)
         else:
             self.ln_final = None
+
+        if Configs.use_original_init:
+            self.apply(init_weights_original)
 
     def forward(self, source: Tensor, target: Tensor) -> Tensor:
         """Run the input through every Transformer block in sequence."""
