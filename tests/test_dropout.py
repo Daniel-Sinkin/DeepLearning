@@ -4,9 +4,10 @@ danielsinkin97@gmail.com
 test_dropout.py
 """
 
-import torch
 import pytest
-from torch import nn
+
+import torch
+
 
 from src.dropout import Dropout
 

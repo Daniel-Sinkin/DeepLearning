@@ -7,12 +7,9 @@ test_common.py
 from __future__ import annotations
 
 import pytest
-import torch
 
-import pytest
 import torch
-import torch.nn as nn
-from torch.nn import Parameter
+from torch import nn
 
 
 from src.common import (
