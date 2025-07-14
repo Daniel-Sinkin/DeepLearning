@@ -5,7 +5,7 @@ from typing import cast
 from torch import Tensor
 from torch import nn
 
-from .masked_multi_head_self_attention import MaskedMultiHeadSelfAttention
+from .multi_head_self_attention import MultiHeadSelfAttention
 from .common import Configs
 
 
@@ -24,7 +24,9 @@ class TransformerBlock(nn.Module):
         self.ln_mhsa = nn.LayerNorm(d_model, eps=Configs.norm_eps)
         self.ln_ff = nn.LayerNorm(d_model, eps=Configs.norm_eps)
 
-        self.mhsa = MaskedMultiHeadSelfAttention(d_model=d_model, n_head=n_head)
+        self.mhsa = MultiHeadSelfAttention(
+            d_model=d_model, n_head=n_head, is_causal=True
+        )
         self.feed_forward = nn.Sequential(
             nn.Linear(d_model, d_ff),
             nn.ReLU(),

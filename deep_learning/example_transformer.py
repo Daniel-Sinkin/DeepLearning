@@ -104,7 +104,7 @@ def main() -> None:
     trafo = Transformer().eval().to(device=device, dtype=dtype)
     torch.set_num_threads(torch.get_num_threads() or 8)
 
-    batch, seq_len, d_model = 16, 512, 768
+    batch, seq_len, d_model = 8, 256, 768
     x = torch.randn(batch, seq_len, d_model, device=device, dtype=dtype)
 
     # Warmup run
