@@ -9,24 +9,10 @@ from torch import nn
 
 from src.linear import Linear
 
-from .common import Configs, WeightInitType, assert_shape, get_default_configs
+from .common import Configs, assert_shape, get_default_configs, share_memory_weight
 from .transformer_encoder import TransformerEncoderBlock
 from .transformer_decoder import TransformerDecoderBlock
 from .positional_encoding import PositionalEncoding
-
-
-def init_weights_original(m: nn.Module) -> None:
-    """
-    The 2017 Vasvani et al. Paper uses xavier with 0 init,
-    pytorch uses kaiming with uniform bias by default
-    """
-    if isinstance(m, nn.Linear):
-        _ = """
-        nn.init.xavier_uniform_(m.weight)
-        if m.bias is not None:  # type: ignore
-            nn.init.zeros_(m.bias)
-        """
-        raise RuntimeError("PyTorch Linear is deprecated use my linear.Linear instead ")
 
 
 class Transformer(nn.Module):
@@ -78,7 +64,7 @@ class Transformer(nn.Module):
             d_model, target_vocab_size, bias=False, configs=self.configs
         )
         if self.configs.tie_target_embedding_and_lm_head_weights:
-            self.lm_head.weight = self.target_embedding.weight
+            share_memory_weight(self.lm_head, self.target_embedding)
 
         self.encoder = nn.ModuleList(
             TransformerEncoderBlock(
@@ -106,9 +92,6 @@ class Transformer(nn.Module):
             self.ln_final = nn.LayerNorm(d_model)
         else:
             self.ln_final = None
-
-        if self.configs.weight_init_type == WeightInitType.Xavier:
-            self.apply(init_weights_original)
 
     def forward(
         self,
