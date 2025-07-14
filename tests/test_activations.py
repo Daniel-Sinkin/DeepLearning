@@ -6,7 +6,7 @@ tests/test_relu.py
 
 import torch
 import pytest
-from src.relu import ReLU  # adjust path if needed
+from src.activations import ReLU
 
 
 def test_relu_positive_pass_through():

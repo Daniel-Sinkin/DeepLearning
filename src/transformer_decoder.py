@@ -9,6 +9,7 @@ from typing import cast
 from torch import Tensor
 from torch import nn
 
+from src.activations import ReLU
 from src.dropout import Dropout
 from src.linear import Linear
 
@@ -42,7 +43,7 @@ class TransformerDecoderBlock(nn.Module):
         )
         self.feed_forward = nn.Sequential(
             Linear(d_model, d_ff, bias=True, configs=self.configs),
-            nn.ReLU(),
+            ReLU(),
             Dropout(dropout),
             Linear(d_ff, d_model, bias=True, configs=self.configs),
         )
