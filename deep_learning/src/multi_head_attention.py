@@ -103,7 +103,7 @@ class _MultiHeadAttentionCore(nn.Module):
             )
             similarity = torch.where(causal_mask, similarity, neg_inf)
 
-            if Debug:
+            if Debug.asserts_enabled:
                 assert_shape(
                     causal_mask, (BROADCAST_SHAPE, BROADCAST_SHAPE, len_q, len_q)
                 )
