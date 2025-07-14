@@ -14,10 +14,10 @@ class TransformerEncoderBlock(nn.Module):
 
     def __init__(
         self,
-        d_model: int = 768,
-        n_head: int = 12,
-        d_ff: int = 2048,
-        dropout: float = 0.1,
+        d_model: int,
+        n_head: int,
+        d_ff: int,
+        dropout: float,
     ):
         super().__init__()  # type: ignore
 

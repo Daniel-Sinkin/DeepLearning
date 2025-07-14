@@ -14,9 +14,9 @@ class _MultiHeadAttentionCore(nn.Module):
     def __init__(
         self,
         is_causal: bool,
-        d_model: int = 768,
-        n_head: int = 12,
-        dropout: float = 0.1,
+        d_model: int,
+        n_head: int,
+        dropout: float,
     ):
         super().__init__()  # type: ignore
         assert d_model % n_head == 0, "d_model must be divisible by n_head"

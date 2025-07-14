@@ -12,13 +12,7 @@ from .common import Configs
 class TransformerDecoderBlock(nn.Module):
     """Pre-norm Transformer block (MHSA -> FFN) with residual connections"""
 
-    def __init__(
-        self,
-        d_model: int = 768,
-        n_head: int = 12,
-        d_ff: int = 2048,
-        dropout: float = 0.1,
-    ):
+    def __init__(self, d_model: int, n_head: int, d_ff: int, dropout: float):
         super().__init__()  # type: ignore
 
         self.ln_cross_attn = nn.LayerNorm(d_model, eps=Configs.norm_eps)
