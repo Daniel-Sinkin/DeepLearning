@@ -1,0 +1,226 @@
+"""danielsinkin97@gmail.com"""
+
+import math
+
+import torch
+from torch import Tensor
+from torch import nn
+import torch.nn.functional as F
+
+from .common import Configs, assert_same_shape, assert_shape, BROADCAST_SHAPE
+
+
+class _MultiHeadAttentionCore(nn.Module):
+    def __init__(
+        self,
+        is_causal: bool,
+        d_model: int = 768,
+        n_head: int = 12,
+        dropout: float = 0.1,
+    ):
+        super().__init__()  # type: ignore
+        assert d_model % n_head == 0, "d_model must be divisible by n_head"
+
+        self.d_model = d_model
+        self.n_head = n_head
+        self.d_h = d_model // n_head
+        self.dropout = nn.Dropout(dropout)
+
+        self.is_causal = is_causal
+
+        self.W_O = nn.Linear(d_model, d_model)
+
+    def forward(self, queries: Tensor, keys: Tensor, values: Tensor) -> Tensor:
+        """
+        Computes Scaled Dot-Product Attention
+        """
+        batch, len_q, d_model_q = queries.shape
+        batch_k, len_k, d_model_k = keys.shape
+        batch_v, len_v, d_model_v = values.shape
+        assert batch == batch_k == batch_v, "batch dims differ"
+        assert len_k == len_v, "key and value seq-lengths differ"
+        assert (
+            d_model_q == d_model_k == d_model_v == self.d_model
+        ), f"{d_model_q=}, {d_model_k=}, {d_model_v=} != {self.d_model=}"
+
+        # Avoids var shadowing
+        _queries = queries.view(batch, len_q, self.n_head, self.d_h)
+        _keys = keys.view(batch, len_k, self.n_head, self.d_h)
+        _values = values.view(batch, len_k, self.n_head, self.d_h)
+
+        assert_shape(_queries, (batch, len_q, self.n_head, self.d_h))
+        assert_shape(_keys, (batch, len_k, self.n_head, self.d_h))
+        assert_shape(_values, (batch, len_k, self.n_head, self.d_h))
+
+        _queries: Tensor = _queries.permute(0, 2, 1, 3).contiguous()
+        _keys: Tensor = _keys.permute(0, 2, 1, 3).contiguous()
+        _values: Tensor = _values.permute(0, 2, 1, 3).contiguous()
+
+        assert_shape(_queries, (batch, self.n_head, len_q, self.d_h))
+        assert_shape(_keys, (batch, self.n_head, len_k, self.d_h))
+        assert_shape(_values, (batch, self.n_head, len_k, self.d_h))
+
+        similarity = torch.matmul(_queries, _keys.transpose(-2, -1)) / math.sqrt(
+            self.d_h
+        )
+        assert_shape(similarity, (batch, self.n_head, len_q, len_k))
+
+        if self.is_causal:
+            assert len_q == len_k, f"Causal masking needs {len_q=}=={len_k}"
+            causal_mask = (
+                torch.tril(
+                    torch.ones(len_q, len_q, dtype=torch.bool, device=similarity.device)
+                )
+                .unsqueeze(0)
+                .unsqueeze(0)
+            )
+            neg_inf = torch.finfo(similarity.dtype).min
+            similarity = torch.where(causal_mask, similarity, neg_inf)
+
+            if Configs.asserts_enabled:
+                assert_shape(
+                    causal_mask, (BROADCAST_SHAPE, BROADCAST_SHAPE, len_q, len_q)
+                )
+                check_mask = ~causal_mask
+                assert_same_shape(check_mask, causal_mask)
+                masked_values = similarity[check_mask.expand_as(similarity)]
+                expected = torch.full_like(masked_values, neg_inf)
+                assert torch.all(
+                    torch.isclose(masked_values, expected)
+                ), "Causal mask failed"
+
+        attention_weights = F.softmax(similarity, dim=-1)
+        assert_shape(attention_weights, (batch, self.n_head, len_q, len_k))
+        attention_weights = self.dropout(attention_weights)
+
+        attention_output = torch.matmul(attention_weights, _values)
+        assert_shape(attention_output, (batch, self.n_head, len_q, self.d_h))
+
+        attention_output = attention_output.permute(0, 2, 1, 3).contiguous()
+        assert_shape(attention_output, (batch, len_q, self.n_head, self.d_h))
+
+        attention_output = attention_output.view(batch, len_q, self.d_model)
+        assert_shape(attention_output, (batch, len_q, self.d_model))
+
+        output: Tensor = self.W_O(attention_output)
+        assert_shape(output, (batch, len_q, self.d_model))
+        output = self.dropout(output)
+
+        return output
+
+
+class MultiHeadSelfAttention(nn.Module):
+    def __init__(
+        self,
+        is_causal: bool,
+        d_model: int = 768,
+        n_head: int = 12,
+        dropout: float = 0.1,
+    ):
+        super().__init__()  # type: ignore
+
+        self.is_causal = is_causal
+        self.core = _MultiHeadAttentionCore(
+            is_causal=is_causal, d_model=d_model, n_head=n_head, dropout=dropout
+        )
+
+        if Configs.use_fused_qkv:
+            self.W_QKV = nn.Linear(d_model, 3 * d_model)
+            self.W_Q = self.W_K = self.W_V = None
+        else:
+            self.W_QKV = None
+            self.W_Q = nn.Linear(d_model, d_model)
+            self.W_K = nn.Linear(d_model, d_model)
+            self.W_V = nn.Linear(d_model, d_model)
+
+    def forward(self, x: Tensor) -> Tensor:
+        if Configs.asserts_enabled:
+            _, _, d_model_input = x.shape
+            assert x.ndim == 3, f"Expected (B, L, D), got {x.ndim=}"
+            assert (
+                d_model_input == self.core.d_model
+            ), f"{d_model_input=} != {self.core.d_model=}"
+
+        if Configs.use_fused_qkv:
+            if Configs.asserts_enabled:
+                assert all(weight is None for weight in (self.W_Q, self.W_K, self.W_V))
+            assert self.W_QKV is not None
+            qkv: Tensor = self.W_QKV(x)
+            q, k, v = qkv.chunk(3, dim=-1)
+        else:
+            assert self.W_Q is not None
+            assert self.W_K is not None
+            assert self.W_V is not None
+            q: Tensor = self.W_Q(x)
+            k: Tensor = self.W_K(x)
+            v: Tensor = self.W_V(x)
+
+        assert_shape(q, (x.shape[0], x.shape[1], self.core.d_model))
+        assert_same_shape(q, k)
+        assert_same_shape(k, v)
+
+        return self.core(q, k, v)
+
+
+class MultiHeadCrossAttention(nn.Module):
+    """
+    Cross-attention wrapper:
+        Q comes from the decoder states,
+        K and V come from the encoder states.
+    """
+
+    def __init__(
+        self,
+        d_model: int = 768,
+        n_head: int = 12,
+        dropout: float = 0.1,
+    ):
+        super().__init__()  # type: ignore
+
+        self.core = _MultiHeadAttentionCore(
+            is_causal=False,
+            d_model=d_model,
+            n_head=n_head,
+            dropout=dropout,
+        )
+
+        if Configs.use_fused_qkv:
+            self.W_Q = nn.Linear(d_model, d_model)
+            self.W_KV = nn.Linear(d_model, 2 * d_model)
+            self.W_K = self.W_V = None
+        else:
+            self.W_Q = nn.Linear(d_model, d_model)
+            self.W_K = nn.Linear(d_model, d_model)
+            self.W_V = nn.Linear(d_model, d_model)
+            self.W_KV = None
+
+    def forward(self, q_input: Tensor, kv_input: Tensor) -> Tensor:
+        """
+        q_input : (B, Lq, d_model)  - decoder states
+        kv_input: (B, Lkv,d_model)  - encoder states (shared for K & V)
+        """
+        batch_q, _, d_q = q_input.shape
+        batch_kv, _, d_kv = kv_input.shape
+
+        if Configs.asserts_enabled:
+            assert (
+                d_q == d_kv == self.core.d_model
+            ), f"{d_q=}, {d_kv=} != {self.core.d_model=}"
+            assert batch_q == batch_kv, f"{batch_q=} != {batch_kv=}"
+
+        if Configs.use_fused_qkv:
+            assert self.W_K is None
+            assert self.W_V is None
+            assert self.W_KV is not None
+            q = self.W_Q(q_input)
+            kv = self.W_KV(kv_input)
+            k, v = kv.chunk(2, dim=-1)
+        else:
+            assert self.W_K is not None
+            assert self.W_V is not None
+            assert self.W_KV is None
+            q = self.W_Q(q_input)
+            k = self.W_K(kv_input)
+            v = self.W_V(kv_input)
+
+        return self.core(q, k, v)

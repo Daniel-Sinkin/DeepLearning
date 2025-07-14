@@ -5,11 +5,11 @@ from typing import cast
 from torch import Tensor
 from torch import nn
 
-from .multi_head_self_attention import MultiHeadSelfAttention
+from .multi_head_attention import MultiHeadSelfAttention, MultiHeadCrossAttention
 from .common import Configs
 
 
-class TransformerBlock(nn.Module):
+class TransformerDecoderBlock(nn.Module):
     """Pre-norm Transformer block (MHSA -> FFN) with residual connections"""
 
     def __init__(
@@ -21,11 +21,15 @@ class TransformerBlock(nn.Module):
     ):
         super().__init__()  # type: ignore
 
-        self.ln_mhsa = nn.LayerNorm(d_model, eps=Configs.norm_eps)
+        self.ln_cross_attn = nn.LayerNorm(d_model, eps=Configs.norm_eps)
+        self.ln_self_attn = nn.LayerNorm(d_model, eps=Configs.norm_eps)
         self.ln_ff = nn.LayerNorm(d_model, eps=Configs.norm_eps)
 
-        self.mhsa = MultiHeadSelfAttention(
-            d_model=d_model, n_head=n_head, is_causal=True
+        self.self_attn = MultiHeadSelfAttention(
+            d_model=d_model, n_head=n_head, is_causal=True, dropout=dropout
+        )
+        self.cross_attn = MultiHeadCrossAttention(
+            d_model=d_model, n_head=n_head, dropout=dropout
         )
         self.feed_forward = nn.Sequential(
             nn.Linear(d_model, d_ff),
@@ -35,20 +39,26 @@ class TransformerBlock(nn.Module):
             nn.Dropout(dropout),
         )
 
-    def forward(self, x: Tensor) -> Tensor:
+    def forward(self, x: Tensor, encoder_output: Tensor) -> Tensor:
         """
         Apply MHSA and position-wise FFN with residual connections.
         Normalization strategy depends on Configs.use_post_norm.
         """
         if Configs.use_post_norm:
-            x = x + cast(Tensor, self.mhsa(x))
-            x = self.ln_mhsa(x)
+            x = x + cast(Tensor, self.self_attn(x))
+            x = self.ln_self_attn(x)
+
+            x = x + self.cross_attn(x, encoder_output)
+            x = self.ln_cross_attn(x)
 
             x = x + cast(Tensor, self.feed_forward(x))
             x = self.ln_ff(x)
         else:
-            x_norm = self.ln_mhsa(x)
-            x = x + cast(Tensor, self.mhsa(x_norm))
+            x_norm = self.ln_self_attn(x)
+            x = x + cast(Tensor, self.self_attn(x_norm))
+
+            x_norm = self.ln_cross_attn(x)
+            x = x + self.cross_attn(x_norm, encoder_output)
 
             x_norm = self.ln_ff(x)
             x = x + cast(Tensor, self.feed_forward(x_norm))

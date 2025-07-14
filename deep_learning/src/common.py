@@ -35,6 +35,7 @@ class Configs:
     use_fused_qkv: bool = True
     asserts_enabled: bool = True
     use_post_norm: bool = True
+    use_final_layer_norm: bool = False
 
     norm_eps: float = 1e-6  # Tensorflow default, 1e-5 is pytorch default
 

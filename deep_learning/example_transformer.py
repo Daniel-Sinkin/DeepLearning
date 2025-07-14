@@ -104,19 +104,20 @@ def main() -> None:
     trafo = Transformer().eval().to(device=device, dtype=dtype)
     torch.set_num_threads(torch.get_num_threads() or 8)
 
-    batch, seq_len, d_model = 8, 256, 768
-    x = torch.randn(batch, seq_len, d_model, device=device, dtype=dtype)
+    batch, source_len, target_len, d_model = 8, 256, 64, 768
+    source = torch.randn(batch, source_len, d_model, device=device, dtype=dtype)
+    target = torch.randn(batch, target_len, d_model, device=device, dtype=dtype)
 
     # Warmup run
     with torch.no_grad():
         for _ in range(3):
-            trafo(x)
+            trafo(source, target)
 
     if profiler_mode == ProfilerMode.NONE:
         assert device.type == "mps"
         torch.mps.synchronize()
         t0 = time.perf_counter()
-        _ = trafo(x)
+        _ = trafo(source, target)
         torch.mps.synchronize()
         t1 = time.perf_counter()
         print(f"{device.type.upper()} forward time: {(t1 - t0) * 1000:.2f} ms")
@@ -131,7 +132,7 @@ def main() -> None:
             profile_memory=True,
             with_stack=True,
         ) as prof:
-            trafo(x)
+            trafo(source, target)
 
         if profiler_mode == ProfilerMode.CPU_AND_CUDA:
             sort_key = "cuda_time_total"
