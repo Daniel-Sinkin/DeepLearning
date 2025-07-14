@@ -2,7 +2,6 @@ from src.common import (
     assert_shape,
     assert_same_shape,
     get_default_configs,
-    BROADCAST_SHAPE,
 )
 import torch
 import pytest
@@ -28,7 +27,6 @@ def test_assert_same_shape_pass():
 
 def test_default_configs_values():
     cfg = get_default_configs()
-    # sanest expectations – tweak if you change defaults
     assert cfg.use_fused_qkv
     assert cfg.use_post_norm
     assert not cfg.use_final_layer_norm

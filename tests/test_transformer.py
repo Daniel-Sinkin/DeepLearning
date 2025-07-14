@@ -38,7 +38,6 @@ def test_gradients_flow(tiny_transformer, device):
     logits = tiny_transformer(src, tgt)
     loss = logits.mean()
     loss.backward()
-    # every parameter that requires-grad must now have grad
     assert all(
         p.grad is not None for p in tiny_transformer.parameters() if p.requires_grad
     )

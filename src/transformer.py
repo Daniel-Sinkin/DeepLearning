@@ -91,12 +91,12 @@ class Transformer(nn.Module):
             for _ in range(n_layer)
         )
 
-        if Configs.use_final_layer_norm:
+        if self.configs.use_final_layer_norm:
             self.ln_final = nn.LayerNorm(d_model)
         else:
             self.ln_final = None
 
-        if Configs.use_original_init:
+        if self.configs.use_original_init:
             self.apply(init_weights_original)
 
     def forward(
@@ -135,7 +135,7 @@ class Transformer(nn.Module):
                 memory_key_padding_mask=source_key_padding_mask,
             )
 
-        if Configs.use_final_layer_norm:
+        if self.configs.use_final_layer_norm:
             assert self.ln_final is not None
             decoder_out = self.ln_final(decoder_out)
 

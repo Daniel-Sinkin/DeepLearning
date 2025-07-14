@@ -19,8 +19,8 @@ class TransformerEncoderBlock(nn.Module):
 
         self.configs = configs
 
-        self.ln_mhsa = nn.LayerNorm(d_model, eps=Configs.norm_eps)
-        self.ln_ff = nn.LayerNorm(d_model, eps=Configs.norm_eps)
+        self.ln_mhsa = nn.LayerNorm(d_model, eps=self.configs.norm_eps)
+        self.ln_ff = nn.LayerNorm(d_model, eps=self.configs.norm_eps)
 
         self.mhsa = MultiHeadSelfAttention(
             d_model=d_model,
@@ -40,7 +40,7 @@ class TransformerEncoderBlock(nn.Module):
     def forward(self, x: Tensor, key_padding_mask: Tensor | None = None) -> Tensor:
         """
         Apply MHSA and position-wise FFN with residual connections.
-        Normalization strategy depends on Configs.use_post_norm.
+        Normalization strategy depends on self.configs.use_post_norm.
         """
         if Configs.use_post_norm:
             x = x + cast(Tensor, self.mhsa(x, key_padding_mask=key_padding_mask))

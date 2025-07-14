@@ -19,9 +19,9 @@ class TransformerDecoderBlock(nn.Module):
 
         self.configs = configs
 
-        self.ln_cross_attn = nn.LayerNorm(d_model, eps=Configs.norm_eps)
-        self.ln_self_attn = nn.LayerNorm(d_model, eps=Configs.norm_eps)
-        self.ln_ff = nn.LayerNorm(d_model, eps=Configs.norm_eps)
+        self.ln_cross_attn = nn.LayerNorm(d_model, eps=self.configs.norm_eps)
+        self.ln_self_attn = nn.LayerNorm(d_model, eps=self.configs.norm_eps)
+        self.ln_ff = nn.LayerNorm(d_model, eps=self.configs.norm_eps)
 
         self.self_attn = MultiHeadSelfAttention(
             d_model=d_model,
@@ -51,7 +51,7 @@ class TransformerDecoderBlock(nn.Module):
         Apply MHSA and position-wise FFN with residual connections.
         Normalization strategy depends on Configs.use_post_norm.
         """
-        if Configs.use_post_norm:
+        if self.configs.use_post_norm:
             x = x + cast(
                 Tensor, self.self_attn(x, key_padding_mask=target_key_padding_mask)
             )
