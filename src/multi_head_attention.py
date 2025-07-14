@@ -1,4 +1,8 @@
-"""danielsinkin97@gmail.com"""
+"""
+danielsinkin97@gmail.com
+
+multi_head_attention.py
+"""
 
 import math
 from typing import cast

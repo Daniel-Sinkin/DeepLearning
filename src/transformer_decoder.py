@@ -1,4 +1,8 @@
-"""danielsinkin97@gmail.com"""
+"""
+danielsinkin97@gmail.com
+
+transformer_decoder.py
+"""
 
 from typing import cast
 

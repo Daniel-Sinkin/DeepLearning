@@ -28,11 +28,11 @@ from src.common import get_default_configs
 #  Hyper-parameters & constants                                               #
 # --------------------------------------------------------------------------- #
 BOS, EOS, PAD = "<bos>", "<eos>", "<pad>"
-MIN_FREQ = 2
-MAX_SENT_LEN = 40  # drop longer sentences (keeps it light)
-TRAIN_SAMPLES = 20_000  # subset – fits in RAM & trains fast on CPU
+MIN_FREQ = 5
+MAX_SENT_LEN = 25  # drop longer sentences (keeps it light)
+TRAIN_SAMPLES = 30_000  # subset – fits in RAM & trains fast on CPU
 BATCH_SIZE = 32
-EPOCHS = 4
+EPOCHS = 50
 DEVICE = torch.device("cpu")
 SEED = 0
 random.seed(SEED)
@@ -138,11 +138,22 @@ loss_fn = nn.CrossEntropyLoss(ignore_index=vocab_en[PAD])
 print(f"Model source vocab: {len(vocab_de)} | target vocab: {len(vocab_en)}")
 print(f"Target embedding size: {model.target_embedding.num_embeddings}")
 
-# --------------------------------------------------------------------------- #
-#  5. Training loop                                                           #
-# --------------------------------------------------------------------------- #
+
+def greedy(src_tensor, src_pad, max_len=MAX_SENT_LEN):
+    model.eval()
+    tgt = torch.tensor([[vocab_en[BOS]]], device=DEVICE)
+    for _ in range(max_len):
+        logits = model(src_tensor, tgt, src_pad, tgt.eq(vocab_en[PAD]))
+        next_tok = logits[:, -1].argmax(-1, keepdim=True)
+        tgt = torch.cat([tgt, next_tok], dim=1)
+        if next_tok.item() == vocab_en[EOS]:
+            break
+    return tgt.squeeze().tolist()
+
+
 print("Training…")
 for epoch in range(1, EPOCHS + 1):
+
     model.train()
     total = 0
     for src, tgt, src_pad, tgt_pad in tqdm(loader, desc=f"Epoch {epoch}"):
@@ -158,21 +169,8 @@ for epoch in range(1, EPOCHS + 1):
         optim.step()
         total += loss.item()
     print(f"  avg loss: {total / len(loader):.3f}")
-
-
-# --------------------------------------------------------------------------- #
-#  6. Greedy decode helper                                                    #
-# --------------------------------------------------------------------------- #
-def greedy(src_tensor, src_pad, max_len=MAX_SENT_LEN):
-    model.eval()
-    tgt = torch.tensor([[vocab_en[BOS]]], device=DEVICE)
-    for _ in range(max_len):
-        logits = model(src_tensor, tgt, src_pad, tgt.eq(vocab_en[PAD]))
-        next_tok = logits[:, -1].argmax(-1, keepdim=True)
-        tgt = torch.cat([tgt, next_tok], dim=1)
-        if next_tok.item() == vocab_en[EOS]:
-            break
-    return tgt.squeeze().tolist()
+    if epoch % 10 == 0:
+        torch.save(model.state_dict(), f"weights_epoch{epoch}.pt")
 
 
 # --------------------------------------------------------------------------- #
@@ -190,7 +188,7 @@ print(f"Max vocab index: {max(vocab_en.values())}")
 
 
 def detokenize(ids, vocab):
-    inv = {i: w for w, i in vocab.items()}
+    inv = {v: k for k, v in vocab.items()}
     return " ".join(
         inv.get(i, f"<unk:{i}>")  # fall back to a placeholder token
         for i in ids
@@ -198,6 +196,14 @@ def detokenize(ids, vocab):
     )
 
 
-print("\n--- Demo ---")
-print("DE:", demo_src)
-print("EN (greedy):", detokenize(decoded, vocab_en))
+print("\n--- Demo Translations ---")
+for i in range(5):
+    demo_src = random.choice(pairs)["de"]
+    demo_tensor = torch.tensor(encode(demo_src, vocab_de), device=DEVICE).unsqueeze(0)
+    decoded = greedy(demo_tensor, demo_tensor.eq(vocab_de[PAD]))
+
+    print(f"\nSample {i + 1}")
+    print("DE:", demo_src)
+    print("EN (greedy):", detokenize(decoded, vocab_en))
+
+torch.save(model.state_dict(), "transformer_translate_weights.pt")

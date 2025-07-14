@@ -1,5 +1,9 @@
 # src/positional_encoding.py
-"""Sinusoidal positional encoding (Vaswani et al., 2017)"""
+"""
+danielsinkin97@gmail.com
+
+positional_encoding.py
+"""
 
 import math
 import torch

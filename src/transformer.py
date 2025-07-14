@@ -1,4 +1,8 @@
-"""danielsinkin97@gmail.com"""
+"""
+danielsinkin97@gmail.com
+
+transformer.py
+"""
 
 from torch import Tensor
 from torch import nn
