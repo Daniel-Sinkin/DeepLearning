@@ -108,16 +108,38 @@ def main() -> None:
     source = torch.randn(batch, source_len, d_model, device=device, dtype=dtype)
     target = torch.randn(batch, target_len, d_model, device=device, dtype=dtype)
 
+    pad_frac = 0.20
+    src_pad_len = int(source_len * pad_frac)
+    tgt_pad_len = int(target_len * pad_frac)
+
+    # (B, L) boolean masks — True where padding
+    source_kpm = torch.zeros(batch, source_len, dtype=torch.bool, device=device)
+    target_kpm = torch.zeros(batch, target_len, dtype=torch.bool, device=device)
+    if src_pad_len:
+        source_kpm[:, -src_pad_len:] = True
+    if tgt_pad_len:
+        target_kpm[:, -tgt_pad_len:] = True
+
     # Warmup run
     with torch.no_grad():
         for _ in range(3):
-            trafo(source, target)
+            _ = trafo(
+                source=source,
+                target=target,
+                source_key_padding_mask=source_kpm,
+                target_key_padding_mask=target_kpm,
+            )
 
     if profiler_mode == ProfilerMode.NONE:
         assert device.type == "mps"
         torch.mps.synchronize()
         t0 = time.perf_counter()
-        _ = trafo(source, target)
+        _ = trafo(
+            source=source,
+            target=target,
+            source_key_padding_mask=source_kpm,
+            target_key_padding_mask=target_kpm,
+        )
         torch.mps.synchronize()
         t1 = time.perf_counter()
         print(f"{device.type.upper()} forward time: {(t1 - t0) * 1000:.2f} ms")
@@ -132,7 +154,12 @@ def main() -> None:
             profile_memory=True,
             with_stack=True,
         ) as prof:
-            trafo(source, target)
+            _ = trafo(
+                source=source,
+                target=target,
+                source_key_padding_mask=source_kpm,
+                target_key_padding_mask=target_kpm,
+            )
 
         if profiler_mode == ProfilerMode.CPU_AND_CUDA:
             sort_key = "cuda_time_total"
