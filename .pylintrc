@@ -9,6 +9,7 @@ disable=
     E1101,
     E0611, # no-name-in-module
     C0103, # invalid-name
+    R0902, # too-many-instance-attributes
 
 [DESIGN]
 max-args=8

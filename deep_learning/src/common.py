@@ -18,17 +18,25 @@ from torch import Tensor
 class Configs:
     """
     Compile-time switches controlling optional functionality.
+
     * use_fused_qkv - Route attention through a single `nn.Linear` that
       projects queries, keys and values jointly (QKV fusion). This reduces
       kernel launches and improves memory locality at the cost of marginally
       higher register pressure.
+
     * asserts_enabled - Enable shape and mask assertions throughout the
       model. These checks are helpful during development but incur a runtime
       hit, so they are disabled by default in production runs.
+
+    * use_post_norm - If True, use post-layernorm architecture (residual → LN).
+      If False, use pre-layernorm (LN → sub-layer → residual).
     """
 
     use_fused_qkv: bool = True
     asserts_enabled: bool = False
+    use_post_norm: bool = True
+
+    norm_eps: float = 1e-6  # Tensorflow default, 1e-5 is pytorch default
 
     @classmethod
     def print(cls) -> None:
@@ -36,6 +44,7 @@ class Configs:
         print("Configs:")
         print(f"\tuse_fused_qkv   : {cls.use_fused_qkv}")
         print(f"\tasserts_enabled : {cls.asserts_enabled}")
+        print(f"\tuse_post_norm   : {cls.use_post_norm}")
 
 
 def assert_shape(x: Tensor, expected_shape: torch.Size | tuple[int, ...]) -> None:

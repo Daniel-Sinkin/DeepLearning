@@ -6,6 +6,7 @@ from torch import Tensor
 from torch import nn
 
 from .masked_multi_head_self_attention import MaskedMultiHeadSelfAttention
+from .common import Configs
 
 
 class TransformerBlock(nn.Module):
@@ -20,8 +21,8 @@ class TransformerBlock(nn.Module):
     ):
         super().__init__()  # type: ignore
 
-        self.ln_mhsa = nn.LayerNorm(d_model)
-        self.ln_ff = nn.LayerNorm(d_model)
+        self.ln_mhsa = nn.LayerNorm(d_model, eps=Configs.norm_eps)
+        self.ln_ff = nn.LayerNorm(d_model, eps=Configs.norm_eps)
 
         self.mhsa = MaskedMultiHeadSelfAttention(d_model=d_model, n_head=n_head)
         self.feed_forward = nn.Sequential(
@@ -34,8 +35,20 @@ class TransformerBlock(nn.Module):
 
     def forward(self, x: Tensor) -> Tensor:
         """
-        Apply MHSA and position-wise FFN (both with residual add & norm).
+        Apply MHSA and position-wise FFN with residual connections.
+        Normalization strategy depends on Configs.use_post_norm.
         """
-        output = x + cast(Tensor, self.mhsa(self.ln_mhsa(x)))
-        output = output + cast(Tensor, self.feed_forward(self.ln_ff(output)))
-        return output
+        if Configs.use_post_norm:
+            x = x + cast(Tensor, self.mhsa(x))
+            x = self.ln_mhsa(x)
+
+            x = x + cast(Tensor, self.feed_forward(x))
+            x = self.ln_ff(x)
+        else:
+            x_norm = self.ln_mhsa(x)
+            x = x + cast(Tensor, self.mhsa(x_norm))
+
+            x_norm = self.ln_ff(x)
+            x = x + cast(Tensor, self.feed_forward(x_norm))
+
+        return x
