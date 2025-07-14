@@ -1,0 +1,15 @@
+[MASTER]
+ignore=venv,.venv,__pycache__
+extension-pkg-allow-list=numpy
+jobs=1
+
+[MESSAGES CONTROL]
+disable=
+    I1101,
+    E1101,
+    E0611, # no-name-in-module
+    C0103, # invalid-name
+
+[DESIGN]
+max-args=8
+max-locals=20
