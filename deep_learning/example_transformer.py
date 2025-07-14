@@ -16,7 +16,6 @@ import torch
 import torch.profiler
 
 from src.transformer import Transformer
-
 from src.common import get_default_configs
 
 
@@ -114,7 +113,7 @@ def main() -> None:
             pad_id=0,
             configs=configs,
         )
-        .eval()
+        # .eval()
         .to(device=device, dtype=dtype)
     )
 
