@@ -21,42 +21,42 @@ class Linear(nn.Module):
 
         self.configs = configs
 
-        self.W = nn.Parameter(torch.empty(d_out, d_in))
+        self.weight = nn.Parameter(torch.empty(d_out, d_in))
 
         if self.configs.weight_init_type == WeightInitType.Xavier:
             # Vaswani 2017 uses Xavier uniform
-            nn.init.xavier_uniform_(self.W)  # gain=1 is default (no nonlinearity)
+            nn.init.xavier_uniform_(self.weight)  # gain=1 is default (no nonlinearity)
         elif self.configs.weight_init_type == WeightInitType.Kaiming:
-            nn.init.kaiming_uniform_(self.W, a=math.sqrt(5))
+            nn.init.kaiming_uniform_(self.weight, a=math.sqrt(5))
         else:
             raise RuntimeError(
                 f"Unsupported weight_init_type: {self.configs.weight_init_type}"
             )
 
         if bias:
-            self.b = nn.Parameter(torch.empty(d_out))
+            self.bias = nn.Parameter(torch.empty(d_out))
             bound = 1 / math.sqrt(d_in)
-            nn.init.uniform_(self.b, -bound, bound)
+            nn.init.uniform_(self.bias, -bound, bound)
         else:
-            self.b = None
+            self.bias = None
 
     def forward(self, X: Tensor) -> Tensor:
-        d_out, d_in = self.W.shape
+        d_out, d_in = self.weight.shape
 
         if X.ndim == 2:
             batch, _ = X.shape
             assert_shape(X, (batch, d_in))
-            output = torch.matmul(X, self.W.T)
+            output = torch.matmul(X, self.weight.T)
             assert_shape(output, (batch, d_out))
         elif X.ndim == 3:
             batch, len_seq, _ = X.shape
             assert_shape(X, (batch, len_seq, d_in))
-            output = torch.matmul(X, self.W.T)
+            output = torch.matmul(X, self.weight.T)
             assert_shape(output, (batch, len_seq, d_out))
         else:
             raise ValueError(f"Unsupported input shape: {X.shape}")
 
-        if self.b is not None:
-            output = output + self.b
+        if self.bias is not None:
+            output = output + self.bias
 
         return output

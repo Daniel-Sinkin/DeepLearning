@@ -38,9 +38,11 @@ def _setup_linear(
     ).to(device)
     with torch.no_grad():
         # Deterministic, easy-to-check weights: 0, 1, 2, …
-        layer.W.copy_(torch.arange(d_out * d_in, dtype=torch.float32).view(d_out, d_in))
+        layer.weight.copy_(
+            torch.arange(d_out * d_in, dtype=torch.float32).view(d_out, d_in)
+        )
         if bias:
-            layer.b.copy_(torch.arange(d_out, dtype=torch.float32))
+            layer.bias.copy_(torch.arange(d_out, dtype=torch.float32))
     return layer
 
 
@@ -56,9 +58,9 @@ def test_linear_forward_2d(device, bias: bool, weight_init_type: WeightInitType)
     lin = _setup_linear(D_IN, D_OUT, bias, weight_init_type, device)
 
     x = torch.arange(B * D_IN, dtype=torch.float32, device=device).view(B, D_IN)
-    expected = x @ lin.W.t()
+    expected = x @ lin.weight.t()
     if bias:
-        expected = expected + lin.b
+        expected = expected + lin.bias
 
     out = lin(x)
     torch.testing.assert_close(out, expected, atol=0, rtol=0)
@@ -73,9 +75,9 @@ def test_linear_forward_3d(device, bias: bool, weight_init_type: WeightInitType)
     lin = _setup_linear(D_IN, D_OUT, bias, weight_init_type, device)
 
     x = torch.arange(B * L * D_IN, dtype=torch.float32, device=device).view(B, L, D_IN)
-    expected = torch.matmul(x, lin.W.t())  # (B, L, D_OUT)
+    expected = torch.matmul(x, lin.weight.t())  # (B, L, D_OUT)
     if bias:
-        expected = expected + lin.b
+        expected = expected + lin.bias
 
     out = lin(x)
     torch.testing.assert_close(out, expected, atol=0, rtol=0)

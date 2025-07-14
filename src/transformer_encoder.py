@@ -12,6 +12,8 @@ from torch import nn
 from .multi_head_attention import MultiHeadSelfAttention
 from .common import Configs
 
+from .linear import Linear
+
 
 class TransformerEncoderBlock(nn.Module):
     """Pre-norm Transformer block (MHSA -> FFN) with residual connections"""
@@ -34,10 +36,10 @@ class TransformerEncoderBlock(nn.Module):
             configs=self.configs,
         )
         self.feed_forward = nn.Sequential(
-            nn.Linear(d_model, d_ff),
+            Linear(d_model, d_ff, bias=True, configs=self.configs),
             nn.ReLU(),
             nn.Dropout(dropout),
-            nn.Linear(d_ff, d_model),
+            Linear(d_ff, d_model, bias=True, configs=self.configs),
             nn.Dropout(dropout),
         )
 

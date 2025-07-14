@@ -7,6 +7,8 @@ transformer.py
 from torch import Tensor
 from torch import nn
 
+from src.linear import Linear
+
 from .common import Configs, WeightInitType, assert_shape, get_default_configs
 from .transformer_encoder import TransformerEncoderBlock
 from .transformer_decoder import TransformerDecoderBlock
@@ -19,9 +21,12 @@ def init_weights_original(m: nn.Module) -> None:
     pytorch uses kaiming with uniform bias by default
     """
     if isinstance(m, nn.Linear):
+        _ = """
         nn.init.xavier_uniform_(m.weight)
         if m.bias is not None:  # type: ignore
             nn.init.zeros_(m.bias)
+        """
+        raise RuntimeError("PyTorch Linear is deprecated use my linear.Linear instead ")
 
 
 class Transformer(nn.Module):
@@ -69,7 +74,9 @@ class Transformer(nn.Module):
             d_model=d_model, dropout=dropout, configs=self.configs
         )
 
-        self.lm_head = nn.Linear(d_model, target_vocab_size, bias=False)
+        self.lm_head = Linear(
+            d_model, target_vocab_size, bias=False, configs=self.configs
+        )
         if self.configs.tie_target_embedding_and_lm_head_weights:
             self.lm_head.weight = self.target_embedding.weight
 

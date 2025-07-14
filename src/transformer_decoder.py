@@ -9,6 +9,8 @@ from typing import cast
 from torch import Tensor
 from torch import nn
 
+from src.linear import Linear
+
 from .multi_head_attention import MultiHeadSelfAttention, MultiHeadCrossAttention
 from .common import Configs
 
@@ -38,10 +40,10 @@ class TransformerDecoderBlock(nn.Module):
             d_model=d_model, n_head=n_head, dropout=dropout, configs=self.configs
         )
         self.feed_forward = nn.Sequential(
-            nn.Linear(d_model, d_ff),
+            Linear(d_model, d_ff, bias=True, configs=self.configs),
             nn.ReLU(),
             nn.Dropout(dropout),
-            nn.Linear(d_ff, d_model),
+            Linear(d_ff, d_model, bias=True, configs=self.configs),
         )
 
     def forward(

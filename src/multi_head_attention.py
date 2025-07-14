@@ -12,6 +12,8 @@ from torch import Tensor
 from torch import nn
 import torch.nn.functional as F
 
+from src.linear import Linear
+
 from .common import Configs, assert_same_shape, assert_shape, BROADCAST_SHAPE
 
 
@@ -39,7 +41,7 @@ class _MultiHeadAttentionCore(nn.Module):
         if self.is_causal:
             self.register_buffer("_causal_mask", torch.empty(0, dtype=torch.bool))
 
-        self.W_O = nn.Linear(d_model, d_model)
+        self.W_O = Linear(d_model, d_model, bias=True, configs=self.configs)
 
     def forward(
         self,
@@ -163,13 +165,13 @@ class MultiHeadSelfAttention(nn.Module):
         )
 
         if self.configs.use_fused_qkv:
-            self.W_QKV = nn.Linear(d_model, 3 * d_model)
+            self.W_QKV = Linear(d_model, 3 * d_model, bias=True, configs=self.configs)
             self.W_Q = self.W_K = self.W_V = None
         else:
             self.W_QKV = None
-            self.W_Q = nn.Linear(d_model, d_model)
-            self.W_K = nn.Linear(d_model, d_model)
-            self.W_V = nn.Linear(d_model, d_model)
+            self.W_Q = Linear(d_model, d_model, bias=True, configs=self.configs)
+            self.W_K = Linear(d_model, d_model, bias=True, configs=self.configs)
+            self.W_V = Linear(d_model, d_model, bias=True, configs=self.configs)
 
     def forward(self, x: Tensor, key_padding_mask: Tensor | None = None) -> Tensor:
         """
@@ -224,13 +226,13 @@ class MultiHeadCrossAttention(nn.Module):
         )
 
         if self.configs.use_fused_qkv:
-            self.W_Q = nn.Linear(d_model, d_model)
-            self.W_KV = nn.Linear(d_model, 2 * d_model)
+            self.W_Q = Linear(d_model, d_model, bias=True, configs=self.configs)
+            self.W_KV = Linear(d_model, 2 * d_model, bias=True, configs=self.configs)
             self.W_K = self.W_V = None
         else:
-            self.W_Q = nn.Linear(d_model, d_model)
-            self.W_K = nn.Linear(d_model, d_model)
-            self.W_V = nn.Linear(d_model, d_model)
+            self.W_Q = Linear(d_model, d_model, bias=True, configs=self.configs)
+            self.W_K = Linear(d_model, d_model, bias=True, configs=self.configs)
+            self.W_V = Linear(d_model, d_model, bias=True, configs=self.configs)
             self.W_KV = None
 
     def forward(
