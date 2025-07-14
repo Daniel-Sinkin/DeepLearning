@@ -112,12 +112,12 @@ class Transformer(nn.Module):
         if Debug.asserts_enabled:
             assert batch == batch2
 
-        _source = self.source_embedding(source)
+        _source: Tensor = self.source_embedding(source)
         assert_shape(_source, (batch, len_source, self.d_model))
         _source = self.source_positional_encoding(_source)
         assert_shape(_source, (batch, len_source, self.d_model))
 
-        _target = self.target_embedding(target)
+        _target: Tensor = self.target_embedding(target)
         assert_shape(_target, (batch, len_target, self.d_model))
         _target = self.target_positional_encoding(_target)
         assert_shape(_target, (batch, len_target, self.d_model))
@@ -128,7 +128,7 @@ class Transformer(nn.Module):
 
         decoder_out = _target
         for block in self.decoder:
-            decoder_out = block(
+            decoder_out: Tensor = block(
                 decoder_out,
                 encoder_out,
                 target_key_padding_mask=target_key_padding_mask,

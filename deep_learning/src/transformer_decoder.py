@@ -65,7 +65,7 @@ class TransformerDecoderBlock(nn.Module):
             x = x + cast(Tensor, self.feed_forward(x))
             x = self.ln_ff(x)
         else:
-            x_norm = self.ln_self_attn(x)
+            x_norm: Tensor = self.ln_self_attn(x)
             x = x + cast(
                 Tensor, self.self_attn(x_norm, key_padding_mask=target_key_padding_mask)
             )
