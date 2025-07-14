@@ -46,9 +46,6 @@ class PositionalEncoding(nn.Module):
         self.register_buffer("pe", pe.unsqueeze(0))
 
     def forward(self, x: Tensor) -> Tensor:
-        """
-        x : (B, L, D)
-        """
         _, L, D = x.shape
         if self.configs.asserts_enabled:
             assert x.ndim == 3, f"expected 3D input (B, L, D), got {x.shape=}"

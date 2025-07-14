@@ -54,10 +54,6 @@ class TransformerDecoderBlock(nn.Module):
         target_key_padding_mask: Tensor | None = None,
         memory_key_padding_mask: Tensor | None = None,
     ) -> Tensor:
-        """
-        Apply MHSA and position-wise FFN with residual connections.
-        Normalization strategy depends on Configs.use_post_norm.
-        """
         if self.configs.use_post_norm:
             x = x + cast(
                 Tensor, self.self_attn(x, key_padding_mask=target_key_padding_mask)

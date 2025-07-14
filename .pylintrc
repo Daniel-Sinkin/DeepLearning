@@ -10,6 +10,7 @@ disable=
     E0611, # no-name-in-module
     C0103, # invalid-name
     R0902, # too-many-instance-attributes
+    C0116, # missing-function-docstring # This marks all `def forward` 
 
 [DESIGN]
 max-args=8

@@ -117,7 +117,6 @@ class Transformer(nn.Module):
         source_key_padding_mask: Tensor | None = None,
         target_key_padding_mask: Tensor | None = None,
     ) -> Tensor:
-        """Run the input through every Transformer block in sequence."""
         batch, len_source = source.shape
         batch2, len_target = target.shape
         if self.configs.asserts_enabled:

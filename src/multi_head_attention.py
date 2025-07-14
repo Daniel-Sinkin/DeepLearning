@@ -51,9 +51,6 @@ class _MultiHeadAttentionCore(nn.Module):
         values: Tensor,
         key_padding_mask: Tensor | None = None,
     ) -> Tensor:
-        """
-        Computes Scaled Dot-Product Attention
-        """
         batch, len_q, d_model_q = queries.shape
         batch_k, len_k, d_model_k = keys.shape
         batch_v, len_v, d_model_v = values.shape
@@ -175,9 +172,6 @@ class MultiHeadSelfAttention(nn.Module):
             self.W_V = Linear(d_model, d_model, bias=True, configs=self.configs)
 
     def forward(self, x: Tensor, key_padding_mask: Tensor | None = None) -> Tensor:
-        """
-        Multi Head Self Attention
-        """
         if self.configs.asserts_enabled:
             _, _, d_model_input = x.shape
             assert x.ndim == 3, f"Expected (B, L, D), got {x.ndim=}"
@@ -239,10 +233,6 @@ class MultiHeadCrossAttention(nn.Module):
     def forward(
         self, q_input: Tensor, kv_input: Tensor, key_padding_mask: Tensor | None = None
     ) -> Tensor:
-        """
-        q_input : (B, Lq, d_model)  - decoder states
-        kv_input: (B, Lkv,d_model)  - encoder states (shared for K & V)
-        """
         batch_q, _, d_q = q_input.shape
         batch_kv, _, d_kv = kv_input.shape
 

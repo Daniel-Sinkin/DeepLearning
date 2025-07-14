@@ -46,10 +46,6 @@ class TransformerEncoderBlock(nn.Module):
         )
 
     def forward(self, x: Tensor, key_padding_mask: Tensor | None = None) -> Tensor:
-        """
-        Apply MHSA and position-wise FFN with residual connections.
-        Normalization strategy depends on self.configs.use_post_norm.
-        """
         if Configs.use_post_norm:
             x = x + cast(Tensor, self.mhsa(x, key_padding_mask=key_padding_mask))
             x = self.ln_mhsa(x)
