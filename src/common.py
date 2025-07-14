@@ -8,12 +8,16 @@ from dataclasses import dataclass
 from enum import StrEnum
 
 import torch
-from torch import Tensor, tensor
+from torch import Tensor
 
 
 class WeightInitType(StrEnum):
+    """
+    Weight initialisation strategy
+    """
+
     Kaiming = "kaiming"
-    Xavier = "xavier"  # With uniform
+    Xavier = "xavier"
 
 
 @dataclass(frozen=True)
