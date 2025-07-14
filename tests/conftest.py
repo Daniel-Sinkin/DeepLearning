@@ -1,4 +1,5 @@
 """Global fixtures & helpers used by the entire test-suite."""
+
 from __future__ import annotations
 
 import random
@@ -9,15 +10,16 @@ import numpy as np
 import pytest
 import torch
 
+
 @pytest.fixture(autouse=True, scope="function")
-def _deterministic() -> Iterator[None]:
+def _deterministic() -> Iterator[None]:  # type: ignore
     """
     Make every test repeatable:
       * Torch
       * NumPy
       * Python's random
     """
-    torch.manual_seed(0)
+    torch.manual_seed(0)  # type: ignore
     np.random.seed(0)
     random.seed(0)
     yield
@@ -25,7 +27,7 @@ def _deterministic() -> Iterator[None]:
 
 @pytest.fixture(scope="session")
 def repo_root() -> Path:
-    """Project root – handy when tests need to touch files."""
+    """Project root - handy when tests need to touch files."""
     return Path(__file__).resolve().parent.parent
 
 
