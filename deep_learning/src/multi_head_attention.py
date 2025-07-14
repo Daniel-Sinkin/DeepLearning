@@ -1,6 +1,7 @@
 """danielsinkin97@gmail.com"""
 
 import math
+from typing import cast
 
 import torch
 from torch import Tensor
@@ -27,6 +28,9 @@ class _MultiHeadAttentionCore(nn.Module):
         self.dropout = nn.Dropout(dropout)
 
         self.is_causal = is_causal
+        self._causal_mask = None
+        if self.is_causal:
+            self.register_buffer("_causal_mask", torch.empty(0, dtype=torch.bool))
 
         self.W_O = nn.Linear(d_model, d_model)
 
@@ -79,13 +83,17 @@ class _MultiHeadAttentionCore(nn.Module):
 
         if self.is_causal:
             assert len_q == len_k, f"Causal masking needs {len_q=}=={len_k}"
-            # TODO: Cache max size version of this and just reuse instead of re-definign each time
-            causal_mask = (
-                torch.tril(
-                    torch.ones(len_q, len_q, dtype=torch.bool, device=similarity.device)
+            if self._causal_mask.size(-1) < len_q:  # type: ignore
+                full_mask = torch.tril(
+                    torch.ones(len_q, len_q, dtype=torch.bool, device=queries.device)
                 )
-                .unsqueeze(0)
-                .unsqueeze(0)
+                self._causal_mask = full_mask.unsqueeze(0).unsqueeze(0)
+                assert_shape(
+                    self._causal_mask, (BROADCAST_SHAPE, BROADCAST_SHAPE, len_q, len_q)
+                )
+
+            causal_mask = cast(
+                Tensor, self._causal_mask[:, :, :len_q, :len_q]  # type:ignore
             )
             similarity = torch.where(causal_mask, similarity, neg_inf)
 
