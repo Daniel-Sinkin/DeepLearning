@@ -30,7 +30,13 @@ class _MultiHeadAttentionCore(nn.Module):
 
         self.W_O = nn.Linear(d_model, d_model)
 
-    def forward(self, queries: Tensor, keys: Tensor, values: Tensor) -> Tensor:
+    def forward(
+        self,
+        queries: Tensor,
+        keys: Tensor,
+        values: Tensor,
+        key_padding_mask: Tensor | None = None,
+    ) -> Tensor:
         """
         Computes Scaled Dot-Product Attention
         """
@@ -64,6 +70,12 @@ class _MultiHeadAttentionCore(nn.Module):
             self.d_h
         )
         assert_shape(similarity, (batch, self.n_head, len_q, len_k))
+        neg_inf = torch.finfo(similarity.dtype).min
+
+        if key_padding_mask is not None:
+            mask = key_padding_mask.unsqueeze(1).unsqueeze(2)
+            assert_shape(mask, (batch, BROADCAST_SHAPE, BROADCAST_SHAPE, len_k))
+            similarity = similarity.masked_fill(mask, neg_inf)
 
         if self.is_causal:
             assert len_q == len_k, f"Causal masking needs {len_q=}=={len_k}"
@@ -74,7 +86,6 @@ class _MultiHeadAttentionCore(nn.Module):
                 .unsqueeze(0)
                 .unsqueeze(0)
             )
-            neg_inf = torch.finfo(similarity.dtype).min
             similarity = torch.where(causal_mask, similarity, neg_inf)
 
             if Configs.asserts_enabled:
@@ -133,7 +144,10 @@ class MultiHeadSelfAttention(nn.Module):
             self.W_K = nn.Linear(d_model, d_model)
             self.W_V = nn.Linear(d_model, d_model)
 
-    def forward(self, x: Tensor) -> Tensor:
+    def forward(self, x: Tensor, key_padding_mask: Tensor | None = None) -> Tensor:
+        """
+        Multi Head Self Attention
+        """
         if Configs.asserts_enabled:
             _, _, d_model_input = x.shape
             assert x.ndim == 3, f"Expected (B, L, D), got {x.ndim=}"
@@ -159,7 +173,7 @@ class MultiHeadSelfAttention(nn.Module):
         assert_same_shape(q, k)
         assert_same_shape(k, v)
 
-        return self.core(q, k, v)
+        return self.core(q, k, v, key_padding_mask=key_padding_mask)
 
 
 class MultiHeadCrossAttention(nn.Module):
@@ -194,7 +208,9 @@ class MultiHeadCrossAttention(nn.Module):
             self.W_V = nn.Linear(d_model, d_model)
             self.W_KV = None
 
-    def forward(self, q_input: Tensor, kv_input: Tensor) -> Tensor:
+    def forward(
+        self, q_input: Tensor, kv_input: Tensor, key_padding_mask: Tensor | None = None
+    ) -> Tensor:
         """
         q_input : (B, Lq, d_model)  - decoder states
         kv_input: (B, Lkv,d_model)  - encoder states (shared for K & V)
@@ -223,4 +239,4 @@ class MultiHeadCrossAttention(nn.Module):
             k = self.W_K(kv_input)
             v = self.W_V(kv_input)
 
-        return self.core(q, k, v)
+        return self.core(q, k, v, key_padding_mask=key_padding_mask)

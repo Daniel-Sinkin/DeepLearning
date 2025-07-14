@@ -42,22 +42,18 @@ class Transformer(nn.Module):
 
         self.positional_encoding = PositionalEncoding(d_model=d_model, dropout=dropout)
 
-        self.encoder = nn.Sequential(
-            *(
-                TransformerEncoderBlock(
-                    d_model=d_model, n_head=n_head, d_ff=d_ff, dropout=dropout
-                )
-                for _ in range(n_layer)
+        self.encoder = nn.ModuleList(
+            TransformerEncoderBlock(
+                d_model=d_model, n_head=n_head, d_ff=d_ff, dropout=dropout
             )
+            for _ in range(n_layer)
         )
 
         self.decoder = nn.ModuleList(
-            (
-                TransformerDecoderBlock(
-                    d_model=d_model, n_head=n_head, d_ff=d_ff, dropout=dropout
-                )
-                for _ in range(n_layer)
+            TransformerDecoderBlock(
+                d_model=d_model, n_head=n_head, d_ff=d_ff, dropout=dropout
             )
+            for _ in range(n_layer)
         )
 
         if Configs.use_final_layer_norm:
@@ -68,15 +64,29 @@ class Transformer(nn.Module):
         if Configs.use_original_init:
             self.apply(init_weights_original)
 
-    def forward(self, source: Tensor, target: Tensor) -> Tensor:
+    def forward(
+        self,
+        source: Tensor,
+        target: Tensor,
+        source_key_padding_mask: Tensor | None = None,
+        target_key_padding_mask: Tensor | None = None,
+    ) -> Tensor:
         """Run the input through every Transformer block in sequence."""
         _source = self.positional_encoding(source)
         _target = self.positional_encoding(target)
 
-        encoder_out: Tensor = self.encoder(_source)
+        encoder_out = _source
+        for block in self.encoder:
+            encoder_out = block(encoder_out, key_padding_mask=source_key_padding_mask)
+
         decoder_out = _target
         for block in self.decoder:
-            decoder_out = block(decoder_out, encoder_out)
+            decoder_out = block(
+                decoder_out,
+                encoder_out,
+                target_key_padding_mask=target_key_padding_mask,
+                memory_key_padding_mask=source_key_padding_mask,
+            )
 
         if Configs.use_final_layer_norm:
             assert self.ln_final is not None

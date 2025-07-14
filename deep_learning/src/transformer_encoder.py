@@ -35,20 +35,20 @@ class TransformerEncoderBlock(nn.Module):
             nn.Dropout(dropout),
         )
 
-    def forward(self, x: Tensor) -> Tensor:
+    def forward(self, x: Tensor, key_padding_mask: Tensor | None = None) -> Tensor:
         """
         Apply MHSA and position-wise FFN with residual connections.
         Normalization strategy depends on Configs.use_post_norm.
         """
         if Configs.use_post_norm:
-            x = x + cast(Tensor, self.mhsa(x))
+            x = x + cast(Tensor, self.mhsa(x, key_padding_mask=key_padding_mask))
             x = self.ln_mhsa(x)
 
             x = x + cast(Tensor, self.feed_forward(x))
             x = self.ln_ff(x)
         else:
             x_norm = self.ln_mhsa(x)
-            x = x + cast(Tensor, self.mhsa(x_norm))
+            x = x + cast(Tensor, self.mhsa(x_norm, key_padding_mask=key_padding_mask))
 
             x_norm = self.ln_ff(x)
             x = x + cast(Tensor, self.feed_forward(x_norm))
