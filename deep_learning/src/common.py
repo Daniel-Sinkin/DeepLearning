@@ -44,9 +44,12 @@ class Configs:
     def print(cls) -> None:
         """Utility function that prints the settings."""
         print("Configs:")
-        print(f"\tuse_fused_qkv   : {cls.use_fused_qkv}")
-        print(f"\tasserts_enabled : {cls.asserts_enabled}")
-        print(f"\tuse_post_norm   : {cls.use_post_norm}")
+        print(f"\tuse_fused_qkv        : {cls.use_fused_qkv}")
+        print(f"\tasserts_enabled      : {cls.asserts_enabled}")
+        print(f"\tuse_post_norm        : {cls.use_post_norm}")
+        print(f"\tuse_final_layer_norm : {cls.use_final_layer_norm}")
+        print(f"\tuse_original_init    : {cls.use_original_init}")
+        print(f"\tnorm_eps             : {cls.norm_eps}")
 
 
 def assert_shape(x: Tensor, expected_shape: torch.Size | tuple[int, ...]) -> None:

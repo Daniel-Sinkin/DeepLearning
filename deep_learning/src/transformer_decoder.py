@@ -39,7 +39,13 @@ class TransformerDecoderBlock(nn.Module):
             nn.Dropout(dropout),
         )
 
-    def forward(self, x: Tensor, encoder_output: Tensor) -> Tensor:
+    def forward(
+        self,
+        x: Tensor,
+        encoder_output: Tensor,
+        target_key_padding_mask: Tensor | None = None,
+        memory_key_padding_mask: Tensor | None = None,
+    ) -> Tensor:
         """
         Apply MHSA and position-wise FFN with residual connections.
         Normalization strategy depends on Configs.use_post_norm.
