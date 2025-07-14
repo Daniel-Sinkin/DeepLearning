@@ -6,7 +6,7 @@ tests/test_relu.py
 
 import torch
 import pytest
-from src.activations import ReLU
+from src.activations import ReLU, IdentityActivation
 
 
 def test_relu_positive_pass_through():
@@ -62,3 +62,11 @@ def test_relu_gradients_flow():
     # Only positive input (2.0) has nonzero grad
     expected_grad = torch.tensor([0.0, 0.0, 1.0])
     torch.testing.assert_close(x.grad, expected_grad)
+
+
+def test_identity_activation_backward():
+    x = torch.randn(4, requires_grad=True)
+    act = IdentityActivation()
+    y = act(x).sum()
+    y.backward()
+    torch.testing.assert_close(x.grad, torch.ones_like(x))
