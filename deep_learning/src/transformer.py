@@ -3,7 +3,7 @@
 from torch import Tensor
 from torch import nn
 
-from .common import Configs
+from .common import Configs, assert_shape
 from .transformer_encoder import TransformerEncoderBlock
 from .transformer_decoder import TransformerDecoderBlock
 from .positional_encoding import PositionalEncoding
@@ -30,6 +30,9 @@ class Transformer(nn.Module):
         d_ff: int,
         n_layer: int,
         dropout: float,
+        source_vocab_size: int,
+        target_vocab_size: int,
+        pad_id: int = 0,
     ):
         super().__init__()  # type: ignore
 
@@ -40,7 +43,24 @@ class Transformer(nn.Module):
 
         self.dropout = dropout
 
-        self.positional_encoding = PositionalEncoding(d_model=d_model, dropout=dropout)
+        self.source_vocab_size = source_vocab_size
+        self.target_vocab_size = target_vocab_size
+
+        self.source_embedding = nn.Embedding(
+            self.source_vocab_size, d_model, padding_idx=pad_id
+        )
+        self.target_embedding = nn.Embedding(
+            self.target_vocab_size, d_model, padding_idx=pad_id
+        )
+        self.source_positional_encoding = PositionalEncoding(
+            d_model=d_model, dropout=dropout
+        )
+        self.target_positional_encoding = PositionalEncoding(
+            d_model=d_model, dropout=dropout
+        )
+
+        self.lm_head = nn.Linear(d_model, target_vocab_size, bias=False)
+        self.lm_head.weight = self.target_embedding.weight
 
         self.encoder = nn.ModuleList(
             TransformerEncoderBlock(
@@ -72,8 +92,20 @@ class Transformer(nn.Module):
         target_key_padding_mask: Tensor | None = None,
     ) -> Tensor:
         """Run the input through every Transformer block in sequence."""
-        _source = self.positional_encoding(source)
-        _target = self.positional_encoding(target)
+        batch, len_source = source.shape
+        batch2, len_target = target.shape
+        if Configs.asserts_enabled:
+            assert batch == batch2
+
+        _source = self.source_embedding(source)
+        assert_shape(_source, (batch, len_source, self.d_model))
+        _source = self.source_positional_encoding(_source)
+        assert_shape(_source, (batch, len_source, self.d_model))
+
+        _target = self.target_embedding(target)
+        assert_shape(_target, (batch, len_target, self.d_model))
+        _target = self.target_positional_encoding(_target)
+        assert_shape(_target, (batch, len_target, self.d_model))
 
         encoder_out = _source
         for block in self.encoder:
@@ -91,4 +123,7 @@ class Transformer(nn.Module):
         if Configs.use_final_layer_norm:
             assert self.ln_final is not None
             decoder_out = self.ln_final(decoder_out)
-        return decoder_out
+
+        logits = self.lm_head(decoder_out)
+        assert_shape(logits, (batch, len_target, self.target_vocab_size))
+        return logits

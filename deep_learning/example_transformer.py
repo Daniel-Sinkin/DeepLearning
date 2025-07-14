@@ -101,12 +101,25 @@ def main() -> None:
         profiler_mode = ProfilerMode.CPU_ONLY
         print("Using CPU (float32)")
 
-    trafo = Transformer().eval().to(device=device, dtype=dtype)
+    trafo = (
+        Transformer(
+            source_vocab_size=32_000,
+            target_vocab_size=32_000,
+            d_model=512,
+            n_head=8,
+            d_ff=2048,
+            n_layer=6,
+            dropout=0.1,
+            pad_id=0,
+        )
+        .eval()
+        .to(device=device, dtype=dtype)
+    )
     torch.set_num_threads(torch.get_num_threads() or 8)
 
-    batch, source_len, target_len, d_model = 8, 256, 64, 768
-    source = torch.randn(batch, source_len, d_model, device=device, dtype=dtype)
-    target = torch.randn(batch, target_len, d_model, device=device, dtype=dtype)
+    batch, source_len, target_len = 8, 256, 64
+    source = torch.randint(0, 32_000, (batch, source_len), device=device)
+    target = torch.randint(0, 32_000, (batch, target_len), device=device)
 
     pad_frac = 0.20
     src_pad_len = int(source_len * pad_frac)
