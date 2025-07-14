@@ -53,7 +53,7 @@ class TransformerEncoderBlock(nn.Module):
             x = x + cast(Tensor, self.feed_forward(x))
             x = self.ln_ff(x)
         else:
-            x_norm = self.ln_mhsa(x)
+            x_norm: Tensor = self.ln_mhsa(x)
             x = x + cast(Tensor, self.mhsa(x_norm, key_padding_mask=key_padding_mask))
 
             x_norm = self.ln_ff(x)

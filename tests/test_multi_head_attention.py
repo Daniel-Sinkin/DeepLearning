@@ -7,7 +7,7 @@ test_multi_head_attention.py
 import pytest
 import torch
 
-from src.common import Configs
+from src.common import Configs, WeightInitType
 from src.multi_head_attention import MultiHeadSelfAttention
 
 
@@ -18,7 +18,7 @@ def test_mhsa_forward_shapes(is_causal, use_fused_qkv, device):
         use_fused_qkv=use_fused_qkv,
         use_post_norm=True,
         use_final_layer_norm=False,
-        use_original_init=True,
+        weight_init_type=WeightInitType.Xavier,
         tie_target_embedding_and_lm_head_weights=False,
         norm_eps=1e-6,
     )
@@ -41,7 +41,7 @@ def test_fused_equals_unfused(device):
         use_fused_qkv=True,
         use_post_norm=True,
         use_final_layer_norm=False,
-        use_original_init=True,
+        weight_init_type=WeightInitType.Xavier,
         tie_target_embedding_and_lm_head_weights=False,
         norm_eps=1e-6,
     )
@@ -97,7 +97,7 @@ def test_mhsa_matches_torch(is_causal, use_fused_qkv, device):
         use_fused_qkv=use_fused_qkv,
         use_post_norm=True,
         use_final_layer_norm=False,
-        use_original_init=False,  # we overwrite weights anyway
+        weight_init_type=WeightInitType.Xavier,
         tie_target_embedding_and_lm_head_weights=False,
         norm_eps=1e-6,
     )

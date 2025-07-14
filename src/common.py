@@ -5,9 +5,15 @@ common.py
 """
 
 from dataclasses import dataclass
+from enum import StrEnum
 
 import torch
 from torch import Tensor
+
+
+class WeightInitType(StrEnum):
+    Kaiming = "kaiming"
+    Xavier = "xavier"  # With uniform
 
 
 @dataclass(frozen=True)
@@ -17,7 +23,7 @@ class Configs:
     use_fused_qkv: bool = True
     use_post_norm: bool = True
     use_final_layer_norm: bool = False
-    use_original_init: bool = True  # xavier with uniform bias
+    weight_init_type: WeightInitType = WeightInitType.Xavier
     tie_target_embedding_and_lm_head_weights: bool = False
 
     asserts_enabled: bool = True
@@ -41,7 +47,7 @@ def get_default_configs() -> Configs:
         use_fused_qkv=True,
         use_post_norm=True,
         use_final_layer_norm=False,
-        use_original_init=True,
+        weight_init_type=WeightInitType.Xavier,
         tie_target_embedding_and_lm_head_weights=False,
         norm_eps=1e-6,
     )

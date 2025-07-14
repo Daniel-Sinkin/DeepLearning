@@ -254,14 +254,14 @@ class MultiHeadCrossAttention(nn.Module):
             assert self.W_V is None
             assert self.W_KV is not None
             q = self.W_Q(q_input)
-            kv = self.W_KV(kv_input)
+            kv: Tensor = self.W_KV(kv_input)
             k, v = kv.chunk(2, dim=-1)
         else:
             assert self.W_K is not None
             assert self.W_V is not None
             assert self.W_KV is None
-            q = self.W_Q(q_input)
-            k = self.W_K(kv_input)
-            v = self.W_V(kv_input)
+            q: Tensor = self.W_Q(q_input)
+            k: Tensor = self.W_K(kv_input)
+            v: Tensor = self.W_V(kv_input)
 
         return self.core(q, k, v, key_padding_mask=key_padding_mask)

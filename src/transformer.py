@@ -7,7 +7,7 @@ transformer.py
 from torch import Tensor
 from torch import nn
 
-from .common import Configs, assert_shape, get_default_configs
+from .common import Configs, WeightInitType, assert_shape, get_default_configs
 from .transformer_encoder import TransformerEncoderBlock
 from .transformer_decoder import TransformerDecoderBlock
 from .positional_encoding import PositionalEncoding
@@ -100,7 +100,7 @@ class Transformer(nn.Module):
         else:
             self.ln_final = None
 
-        if self.configs.use_original_init:
+        if self.configs.weight_init_type == WeightInitType.Xavier:
             self.apply(init_weights_original)
 
     def forward(
@@ -143,6 +143,6 @@ class Transformer(nn.Module):
             assert self.ln_final is not None
             decoder_out = self.ln_final(decoder_out)
 
-        logits = self.lm_head(decoder_out)
+        logits: Tensor = self.lm_head(decoder_out)
         assert_shape(logits, (batch, len_target, self.target_vocab_size))
         return logits

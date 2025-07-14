@@ -85,6 +85,7 @@ def training_data():
         de, en = example["translation"]["de"], example["translation"]["en"]
         if len(de.split()) <= MAX_SENT_LEN and len(en.split()) <= MAX_SENT_LEN:
             return {"de": de.lower(), "en": en.lower()}
+        return None
 
     pairs = [clean_pair(ex) for ex in islice(raw, 100)]
     pairs = [p for p in pairs if p is not None][:TRAIN_SAMPLES]
