@@ -28,6 +28,8 @@ def generate_error_surfaces(
 
 def plot_error_surfaces() -> None:
     r"""
+    Inspired by this: https://stats.stackexchange.com/a/151351
+
     Overfitting tends to go hand-in-hand with large parameter sizes, so to alleviate overfitting
     we want to penalise large weights. For linear regression the usual error
     $$
