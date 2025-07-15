@@ -2,6 +2,7 @@
 danielsinkin97@gmail.com
 """
 
+import os
 from typing import Tuple
 import numpy as np
 import matplotlib.pyplot as plt
@@ -94,8 +95,10 @@ def plot_error_surfaces() -> None:
     ax2.set_ylabel("$\\theta_1$")
     ax2.set_zlabel("Error")
 
+    os.makedirs("plots", exist_ok=True)
     plt.tight_layout()
     plt.savefig("plots/ridge_regression.png", dpi=300)
+    plt.close()
 
 
 if __name__ == "__main__":
