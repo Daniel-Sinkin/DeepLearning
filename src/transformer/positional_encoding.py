@@ -11,7 +11,7 @@ import torch
 from torch import Tensor, nn
 
 from ..dropout import Dropout
-from .transformer_common import Configs
+from .common import Configs
 
 
 class PositionalEncoding(nn.Module):

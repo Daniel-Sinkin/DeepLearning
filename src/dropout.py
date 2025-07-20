@@ -1,7 +1,5 @@
 """
 danielsinkin97@gmail.com
-
-linear.py
 """
 
 import torch

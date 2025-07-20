@@ -1,7 +1,5 @@
 """
 danielsinkin97@gmail.com
-
-common.py
 """
 
 from enum import StrEnum

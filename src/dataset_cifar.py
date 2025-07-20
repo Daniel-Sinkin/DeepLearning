@@ -1,3 +1,7 @@
+"""
+danielsinkin97@gmail.com
+"""
+
 from typing import TypeAlias
 
 from jaxtyping import Float, Int
