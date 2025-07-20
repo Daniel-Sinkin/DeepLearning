@@ -1,18 +1,19 @@
-from typing import Iterator, TypeAlias
+"""
+danielsinkin97@gmail.com
+"""
 
-import matplotlib.pyplot as plt
-import numpy as np
 import torch
-import torchvision
-from jaxtyping import Float, Int
+from jaxtyping import Float
 from torch import Tensor, nn
 
-from .common import assert_shape
+from .dataset_cifar import CIFARImages
+
+T_ = "T"
 
 
 def get_beta_schedule_linear(
     T: int, beta_0: float = 1e-4, beta_T: float = 1e-1
-) -> Float[Tensor, "T"]:
+) -> Float[Tensor, f"{T_}"]:  # noqa: F821
     beta_t = torch.linspace(beta_0, beta_T, T)
     return torch.cumprod(1 - beta_t, dim=0)
 
@@ -28,7 +29,7 @@ def get_xt(t: int, images: CIFARImages, alpha_bars: Tensor) -> CIFARImages:
 
 
 class DiffusionModel(nn.Module):
-    def __init__(self, T: int, beta_t: Float[Tensor, "T"]):
+    def __init__(self, T: int, beta_t: Float[Tensor, f"{T_}"]):
         super().__init__()  # type: ignore
         assert beta_t.shape == (T,)
         self.T = T
