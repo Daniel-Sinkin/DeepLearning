@@ -13,8 +13,9 @@ import pytest
 import torch
 from torch import nn
 
-from src.common import WeightInitType, get_default_configs
+from src.common import WeightInitType
 from src.linear import Linear
+from src.transformer.common import get_default_configs
 
 
 # ---------------------------------------------------------------------

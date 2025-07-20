@@ -4,12 +4,12 @@ from itertools import islice
 
 import pytest
 import torch
+from datasets import load_dataset
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
-from datasets import load_dataset
 
-from src.common import get_default_configs
-from src.transformer import Transformer
+from src.transformer.common import get_default_configs
+from src.transformer.transformer import Transformer
 
 
 @pytest.fixture(scope="module")

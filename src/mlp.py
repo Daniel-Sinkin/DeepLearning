@@ -9,7 +9,7 @@ from torch import Tensor, nn
 from src.activations import ActivationFunction, ActivationName, get_activation
 
 from .linear import Linear
-from .transformer_common import Configs  # TODO: Don't use the transformer configs here
+from .transformer.common import Configs  # TODO: Don't use the transformer configs here
 
 
 class MultiLayerPerceptron(nn.Module):

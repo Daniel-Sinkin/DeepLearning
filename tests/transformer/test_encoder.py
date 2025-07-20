@@ -12,8 +12,8 @@ from typing import Any
 import pytest
 import torch
 
-from src.common import get_default_configs
-from src.transformer_encoder import TransformerEncoderBlock
+from src.transformer.common import get_default_configs
+from src.transformer.encoder import TransformerEncoderBlock
 
 
 # ---------------------------------------------------------------------

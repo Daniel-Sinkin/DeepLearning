@@ -4,9 +4,10 @@ danielsinkin97@gmail.com
 tests/test_relu.py
 """
 
-import torch
 import pytest
-from src.activations import ReLU, IdentityActivation, Sigmoid
+import torch
+
+from src.activations import IdentityActivation, ReLU, Sigmoid
 
 
 def test_relu_positive_pass_through():

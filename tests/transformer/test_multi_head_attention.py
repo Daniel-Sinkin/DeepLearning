@@ -7,8 +7,9 @@ test_multi_head_attention.py
 import pytest
 import torch
 
-from src.common import Configs, WeightInitType
-from src.transformer_multi_head_attention import MultiHeadSelfAttention
+from src.common import WeightInitType
+from src.transformer.common import Configs
+from src.transformer.multi_head_attention import MultiHeadSelfAttention
 
 
 @pytest.mark.parametrize("is_causal", [False, True])

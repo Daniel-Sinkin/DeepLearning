@@ -7,7 +7,8 @@ import math
 import torch
 from torch import Tensor, nn
 
-from .common import Configs, WeightInitType, assert_shape
+from .common import WeightInitType, assert_shape
+from .transformer.common import Configs
 
 
 class Linear(nn.Module):
