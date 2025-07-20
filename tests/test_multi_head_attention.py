@@ -8,7 +8,7 @@ import pytest
 import torch
 
 from src.common import Configs, WeightInitType
-from src.multi_head_attention import MultiHeadSelfAttention
+from src.transformer_multi_head_attention import MultiHeadSelfAttention
 
 
 @pytest.mark.parametrize("is_causal", [False, True])
@@ -76,12 +76,14 @@ def _copy_weights_to_torch(
     else:
         ref.in_proj_weight.data.copy_(  # type: ignore
             torch.cat(
-                [ours.W_Q.weight, ours.W_K.weight, ours.W_V.weight], dim=0  # type: ignore
+                [ours.W_Q.weight, ours.W_K.weight, ours.W_V.weight],
+                dim=0,  # type: ignore
             )
         )
         ref.in_proj_bias.data.copy_(  # type: ignore
             torch.cat(
-                [ours.W_Q.bias, ours.W_K.bias, ours.W_V.bias], dim=0  # type: ignore
+                [ours.W_Q.bias, ours.W_K.bias, ours.W_V.bias],
+                dim=0,  # type: ignore
             )
         )
 

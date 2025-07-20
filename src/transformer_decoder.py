@@ -12,8 +12,11 @@ from src.activations import ReLU
 from src.dropout import Dropout
 from src.linear import Linear
 
-from .multi_head_attention import MultiHeadCrossAttention, MultiHeadSelfAttention
 from .transformer_common import Configs
+from .transformer_multi_head_attention import (
+    MultiHeadCrossAttention,
+    MultiHeadSelfAttention,
+)
 
 
 class TransformerDecoderBlock(nn.Module):

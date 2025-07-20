@@ -9,10 +9,10 @@ from torch import Tensor, nn
 from src.linear import Linear
 
 from .common import assert_shape, share_memory_weight
-from .positional_encoding import PositionalEncoding
 from .transformer_common import Configs, get_default_configs
 from .transformer_decoder import TransformerDecoderBlock
 from .transformer_encoder import TransformerEncoderBlock
+from .transformer_positional_encoding import PositionalEncoding
 
 
 class Transformer(nn.Module):

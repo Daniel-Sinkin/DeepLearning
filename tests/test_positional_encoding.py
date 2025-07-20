@@ -1,6 +1,7 @@
 import torch
-from src.positional_encoding import PositionalEncoding
+
 from src.common import get_default_configs
+from src.transformer_positional_encoding import PositionalEncoding
 
 
 def test_positional_encoding_shape(device):
