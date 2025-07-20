@@ -1,29 +1,13 @@
-from typing import TypeAlias, Iterator
+from typing import Iterator, TypeAlias
 
-from torchvision.datasets import CIFAR10
-from torchvision import transforms
-from torch.utils.data import DataLoader
-from jaxtyping import Float, Int
-import torch
-from torch import nn
-from torch import Tensor
 import matplotlib.pyplot as plt
-import torchvision
 import numpy as np
+import torch
+import torchvision
+from jaxtyping import Float, Int
+from torch import Tensor, nn
 
 from .common import assert_shape
-
-
-batch_size, channel, height, width = 64, 3, 32, 32
-CIFARImages: TypeAlias = Float[Tensor, f"B {channel} {height} {width}"]
-CIFARLabels: TypeAlias = Int[Tensor, "B"]
-CIFARBatch: TypeAlias = tuple[CIFARImages, CIFARLabels]
-
-
-def validate_batch(batch: CIFARBatch) -> None:
-    images, labels = batch
-    assert_shape(images, (batch_size, channel, height, width))
-    assert_shape(labels, (batch_size,))
 
 
 def get_beta_schedule_linear(

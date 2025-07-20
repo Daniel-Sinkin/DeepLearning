@@ -1,14 +1,24 @@
-from typing import TypeAlias, Iterator
+from typing import Iterator, TypeAlias
 
-from torchvision.datasets import CIFAR10
-from torchvision import transforms
-from torch.utils.data import DataLoader
-from jaxtyping import Float, Int
-import torch
-from torch import Tensor
 import matplotlib.pyplot as plt
+import torch
 import torchvision
+from jaxtyping import Float, Int
+from torch import Tensor
+from torch.utils.data import DataLoader
+from torchvision import transforms
+from torchvision.datasets import CIFAR10
 
+from src.dataset_cifar import (
+    CIFARBatch,
+    CIFARImages,
+    CIFARLabels,
+    batch_size,
+    channel,
+    get_data,
+    height,
+    width,
+)
 from src.diffusion import DiffusionModel, get_beta_schedule_linear
 
 if torch.cuda.is_available():
@@ -17,36 +27,6 @@ elif torch.backends.mps.is_available():
     device = "mps"
 else:
     device = "cpu"
-
-batch_size, channel, height, width = 64, 3, 32, 32
-CIFARImages: TypeAlias = Float[Tensor, f"B {channel} {height} {width}"]
-CIFARLabels: TypeAlias = Int[Tensor, "B"]
-CIFARBatch: TypeAlias = tuple[CIFARImages, CIFARLabels]
-
-
-def validate_batch(batch: CIFARBatch) -> None:
-    images, labels = batch
-    assert images.shape == (batch_size, channel, height, width)
-    assert labels.shape == (batch_size,)
-
-
-def get_data(train: bool = True) -> DataLoader[CIFARBatch]:
-    transform = transforms.Compose(
-        [
-            transforms.Resize((height, width)),
-            transforms.ToTensor(),
-            transforms.Normalize([0.5], [0.5]),
-        ]
-    )
-    trainset = CIFAR10(root="./data", train=train, download=True, transform=transform)
-    train_loader: DataLoader[CIFARBatch] = DataLoader(
-        trainset,
-        batch_size=64,
-        shuffle=True,
-        num_workers=2,
-        pin_memory=(device != "mps"),
-    )
-    return train_loader
 
 
 def create_cifar_iter(data_loader: DataLoader[CIFARBatch]) -> Iterator[CIFARBatch]:
