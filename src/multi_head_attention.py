@@ -15,7 +15,8 @@ import torch.nn.functional as F
 from src.dropout import Dropout
 from src.linear import Linear
 
-from .common import Configs, assert_same_shape, assert_shape, BROADCAST_SHAPE
+from transformer_common import Configs
+from .common import assert_same_shape, assert_shape, BROADCAST_SHAPE
 
 
 class _MultiHeadAttentionCore(nn.Module):

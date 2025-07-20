@@ -14,7 +14,7 @@ from src.dropout import Dropout
 from src.linear import Linear
 
 from .multi_head_attention import MultiHeadSelfAttention, MultiHeadCrossAttention
-from .common import Configs
+from .transformer_common import Configs
 
 
 class TransformerDecoderBlock(nn.Module):

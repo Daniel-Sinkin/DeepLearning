@@ -11,7 +11,7 @@ from torch import nn
 
 from src.activations import ActivationFunction, get_activation, ActivationName
 
-from .common import Configs
+from .transformer_common import Configs  # TODO: Don't use the transformer configs here
 from .linear import Linear
 
 

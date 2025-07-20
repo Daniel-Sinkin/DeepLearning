@@ -9,7 +9,8 @@ from torch import nn
 
 from src.linear import Linear
 
-from .common import Configs, assert_shape, get_default_configs, share_memory_weight
+from .transformer_common import Configs, get_default_configs
+from .common import assert_shape, share_memory_weight
 from .transformer_encoder import TransformerEncoderBlock
 from .transformer_decoder import TransformerDecoderBlock
 from .positional_encoding import PositionalEncoding

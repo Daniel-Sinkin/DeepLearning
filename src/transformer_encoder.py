@@ -13,7 +13,7 @@ from src.activations import ReLU
 from src.dropout import Dropout
 
 from .multi_head_attention import MultiHeadSelfAttention
-from .common import Configs
+from .transformer_common import Configs
 
 from .linear import Linear
 
