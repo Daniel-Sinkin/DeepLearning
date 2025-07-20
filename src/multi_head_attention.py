@@ -8,15 +8,14 @@ import math
 from typing import cast
 
 import torch
-from torch import Tensor
-from torch import nn
 import torch.nn.functional as F
+from torch import Tensor, nn
 
 from src.dropout import Dropout
 from src.linear import Linear
-
 from transformer_common import Configs
-from .common import assert_same_shape, assert_shape, BROADCAST_SHAPE
+
+from .common import BROADCAST_SHAPE, assert_same_shape, assert_shape
 
 
 class _MultiHeadAttentionCore(nn.Module):
@@ -104,7 +103,8 @@ class _MultiHeadAttentionCore(nn.Module):
                 )
 
             causal_mask = cast(
-                Tensor, self._causal_mask[:, :, :len_q, :len_q]  # type:ignore
+                Tensor,
+                self._causal_mask[:, :, :len_q, :len_q],  # type:ignore
             )
             similarity = torch.where(causal_mask, similarity, neg_inf)
 

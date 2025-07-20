@@ -7,8 +7,7 @@ common.py
 from enum import StrEnum
 
 import torch
-from torch import Tensor
-from torch import nn
+from torch import Tensor, nn
 
 
 class WeightInitType(StrEnum):

@@ -6,13 +6,12 @@ linear.py
 
 from typing import Type
 
-from torch import Tensor
-from torch import nn
+from torch import Tensor, nn
 
-from src.activations import ActivationFunction, get_activation, ActivationName
+from src.activations import ActivationFunction, ActivationName, get_activation
 
-from .transformer_common import Configs  # TODO: Don't use the transformer configs here
 from .linear import Linear
+from .transformer_common import Configs  # TODO: Don't use the transformer configs here
 
 
 class MultiLayerPerceptron(nn.Module):

@@ -6,8 +6,9 @@ positional_encoding.py
 """
 
 import math
+
 import torch
-from torch import nn, Tensor
+from torch import Tensor, nn
 
 from src.dropout import Dropout
 

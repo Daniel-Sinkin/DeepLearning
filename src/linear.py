@@ -7,10 +7,9 @@ linear.py
 import math
 
 import torch
-from torch import Tensor
-from torch import nn
+from torch import Tensor, nn
 
-from .common import WeightInitType, Configs, assert_shape
+from .common import Configs, WeightInitType, assert_shape
 
 
 class Linear(nn.Module):

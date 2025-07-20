@@ -4,15 +4,14 @@ danielsinkin97@gmail.com
 relu.py
 """
 
-from abc import abstractmethod
 import math
+from abc import abstractmethod
 from enum import StrEnum
 from typing import Any
 
 import torch
-from torch import Tensor
-from torch import nn
 import torch.autograd
+from torch import Tensor, nn
 
 from .common import erf
 

@@ -6,14 +6,13 @@ transformer_decoder.py
 
 from typing import cast
 
-from torch import Tensor
-from torch import nn
+from torch import Tensor, nn
 
 from src.activations import ReLU
 from src.dropout import Dropout
 from src.linear import Linear
 
-from .multi_head_attention import MultiHeadSelfAttention, MultiHeadCrossAttention
+from .multi_head_attention import MultiHeadCrossAttention, MultiHeadSelfAttention
 from .transformer_common import Configs
 
 
