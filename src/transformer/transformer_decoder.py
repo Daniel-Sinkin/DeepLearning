@@ -8,10 +8,9 @@ from typing import cast
 
 from torch import Tensor, nn
 
-from src.activations import ReLU
-from src.dropout import Dropout
-from src.linear import Linear
-
+from ..activations import ReLU
+from ..dropout import Dropout
+from ..linear import Linear
 from .transformer_common import Configs
 from .transformer_multi_head_attention import (
     MultiHeadCrossAttention,

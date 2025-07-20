@@ -13,9 +13,9 @@ from torch import Tensor, nn
 
 from src.dropout import Dropout
 from src.linear import Linear
-from transformer_common import Configs
 
-from .common import BROADCAST_SHAPE, assert_same_shape, assert_shape
+from ..common import BROADCAST_SHAPE, assert_same_shape, assert_shape
+from .transformer_common import Configs
 
 
 class _MultiHeadAttentionCore(nn.Module):

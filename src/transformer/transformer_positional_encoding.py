@@ -10,8 +10,7 @@ import math
 import torch
 from torch import Tensor, nn
 
-from src.dropout import Dropout
-
+from ..dropout import Dropout
 from .transformer_common import Configs
 
 

@@ -8,7 +8,7 @@ from torch import Tensor, nn
 
 from src.linear import Linear
 
-from .common import assert_shape, share_memory_weight
+from ..common import assert_shape, share_memory_weight
 from .transformer_common import Configs, get_default_configs
 from .transformer_decoder import TransformerDecoderBlock
 from .transformer_encoder import TransformerEncoderBlock

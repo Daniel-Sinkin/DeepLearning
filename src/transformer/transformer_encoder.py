@@ -11,7 +11,7 @@ from torch import Tensor, nn
 from src.activations import ReLU
 from src.dropout import Dropout
 
-from .linear import Linear
+from ..linear import Linear
 from .transformer_common import Configs
 from .transformer_multi_head_attention import MultiHeadSelfAttention
 

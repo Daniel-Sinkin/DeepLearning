@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 
-from .common import WeightInitType
+from ..common import WeightInitType
 
 
 @dataclass(frozen=True)
