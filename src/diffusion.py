@@ -6,6 +6,7 @@ import torch
 from jaxtyping import Float
 from torch import Tensor, nn
 
+from .common import assert_shape
 from .dataset_cifar import CIFARImages
 
 T_ = "T"
@@ -18,19 +19,51 @@ def get_beta_schedule_linear(
     return torch.cumprod(1 - beta_t, dim=0)
 
 
-def get_xt(t: int, images: CIFARImages, alpha_bars: Tensor) -> CIFARImages:
-    assert 0 <= t < len(alpha_bars)
-    if t == 0:
-        return images
-    alpha_bar = alpha_bars[t]
-    eps = torch.randn_like(images)
-    noisy_images = torch.sqrt(alpha_bar) * images + torch.sqrt(1 - alpha_bar) * eps
-    return noisy_images
+class SinusoidalTimeEmbedding(nn.Module):
+    def __init__(self, dim: int):
+        super().__init__()  # type: ignore
+        self.dim = dim
+
+    def forward(self, t: Tensor) -> Tensor:
+        assert len(t.shape) == 1
+        batch = t.shape
+        half_dim = self.dim // 2
+        freqs = torch.exp(
+            -torch.arange(half_dim, dtype=torch.float32, device=t.device)
+            * torch.log(torch.tensor(10000.0))
+            / half_dim
+        )
+        args = t[:, None].float() * freqs[None]
+        emb = torch.cat([torch.sin(args), torch.cos(args)], dim=-1)
+        assert_shape(emb, (batch, self.dim))
+        return emb
 
 
 class DiffusionModel(nn.Module):
     def __init__(self, T: int, beta_t: Float[Tensor, f"{T_}"]):
         super().__init__()  # type: ignore
-        assert beta_t.shape == (T,)
+        assert_shape(beta_t, (T,))
         self.T = T
         self.alpha_bars = torch.cumprod(1 - beta_t, dim=0)
+
+        self.epsilon_theta = nn.Sequential(
+            nn.Conv2d(3, 64, 3, padding=1),
+            nn.ReLU(),
+            nn.Conv2d(64, 3, 3, padding=1),
+        )
+
+    def forward(self, x_t: Tensor, t: Tensor) -> Tensor:
+        return self.epsilon_theta(x_t)
+
+    def train_step(self, x_0: Tensor) -> Tensor:
+        B = x_0.shape[0]
+        device = x_0.device
+
+        t = torch.randint(0, self.T, (B,), device=device)
+
+        alpha_bars = self.alpha_bars[t].reshape(B, 1, 1, 1)
+        eps = torch.randn_like(x_0)
+        x_t = torch.sqrt(alpha_bars) * x_0 + torch.sqrt(1.0 - alpha_bars) * eps
+        eps_theta = self.forward(x_t, t)
+        loss = nn.functional.mse_loss(eps_theta, eps)
+        return loss
