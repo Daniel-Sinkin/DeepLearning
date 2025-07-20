@@ -8,6 +8,7 @@ Assumes all are defined in src/unet.py (adjust imports if you used another filen
 from __future__ import annotations
 
 import math
+import time
 
 import pytest
 import torch
@@ -322,3 +323,56 @@ def test_unet_overfits_fixed_batch() -> None:
     assert (
         final_loss < 0.4 * initial_loss
     ), f"UNet failed to overfit: initial={initial_loss:.4f}, final={final_loss:.4f}"
+
+
+def test_unet_forward_time_under_100ms() -> None:
+    model = UNet(base_channels=8, time_emb_dim=32, channel_mults=(1, 2))
+    x = torch.randn(1, 3, 32, 32)
+    t = torch.randint(0, 100, (1,))
+    start = time.time()
+    _ = model(x, t)
+    elapsed = (time.time() - start) * 1000  # ms
+    assert elapsed < 100, f"UNet forward took too long: {elapsed:.2f} ms"
+
+
+def test_unet_does_not_nan_over_time() -> None:
+    model = UNet(base_channels=8, time_emb_dim=32, channel_mults=(1, 2))
+    opt = torch.optim.Adam(model.parameters(), lr=1e-3)
+    for _ in range(200):
+        x = torch.randn(4, 3, 32, 32)
+        t = torch.randint(0, 100, (4,))
+        loss = model(x, t).mean()
+        assert torch.isfinite(loss), "Loss became NaN or Inf"
+        opt.zero_grad()
+        loss.backward()
+        opt.step()
+
+
+@pytest.mark.skipif(
+    not torch.backends.mps.is_available(), reason="requires MPS (Apple Silicon)"
+)
+def test_unet_output_matches_cpu_and_mps() -> None:
+    model = UNet(base_channels=8, time_emb_dim=32, channel_mults=(1, 2))
+    model_cpu = model
+    model_mps = UNet(base_channels=8, time_emb_dim=32, channel_mults=(1, 2)).to("mps")
+    model_mps.load_state_dict(model_cpu.state_dict())
+
+    x = torch.randn(2, 3, 32, 32)
+    t = torch.randint(0, 100, (2,))
+    out_cpu = model_cpu(x, t)
+    out_mps = model_mps(x.to("mps"), t.to("mps")).cpu()
+    torch.testing.assert_close(out_cpu, out_mps, rtol=1e-3, atol=1e-3)
+
+
+@pytest.mark.skipif(not torch.cuda.is_available(), reason="requires CUDA")
+def test_unet_output_matches_cpu_and_cuda() -> None:
+    model = UNet(base_channels=8, time_emb_dim=32, channel_mults=(1, 2))
+    model_cpu = model
+    model_cuda = UNet(base_channels=8, time_emb_dim=32, channel_mults=(1, 2)).cuda()
+    model_cuda.load_state_dict(model_cpu.state_dict())
+
+    x = torch.randn(2, 3, 32, 32)
+    t = torch.randint(0, 100, (2,))
+    out_cpu = model_cpu(x, t)
+    out_cuda = model_cuda(x.cuda(), t.cuda()).cpu()
+    torch.testing.assert_close(out_cpu, out_cuda, rtol=1e-3, atol=1e-3)
