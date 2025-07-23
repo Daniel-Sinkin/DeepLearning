@@ -126,7 +126,7 @@ def evaluate(model: DiffusionModel, data_loader, device: torch.device) -> float:
 
 @dataclass
 class TrainConfig:
-    epochs: int = 200
+    epochs: int = 3
     lr: float = 2e-4
     weight_decay: float = 0.0
     seed: int = 42
@@ -243,13 +243,18 @@ def train(cfg: TrainConfig) -> None:
     total_start = time.perf_counter()
     epoch_times: List[float] = []
 
+    print("Starting to train")
     for epoch in range(start_epoch, cfg.epochs):
         model.train()
         epoch_start = time.perf_counter()
         running_loss = 0.0
         num_samples = 0
 
+        i = 0
         for images in train_loader:
+            print(f"{i} / 728 ({i / 728:.2%})")
+            i += 1
+
             images = images.to(device)
             loss = model.train_step(images)
             optimizer.zero_grad(set_to_none=True)
@@ -396,4 +401,5 @@ def parse_args() -> TrainConfig:
 
 if __name__ == "__main__":
     cfg = parse_args()
+    print("Successfully parsed args")
     train(cfg)
