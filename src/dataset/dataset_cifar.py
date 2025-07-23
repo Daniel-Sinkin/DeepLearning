@@ -13,7 +13,7 @@ from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
 from torchvision.datasets import CIFAR10
 
-from .common import assert_shape
+from ..common import assert_shape
 
 batch_size, channel, height, width = 64, 3, 32, 32
 B_ = "B"  # Workaround for Ruff

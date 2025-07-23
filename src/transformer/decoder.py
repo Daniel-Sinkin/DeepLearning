@@ -8,7 +8,7 @@ from typing import cast
 
 from torch import Tensor, nn
 
-from ..activations import ReLU
+from ..building_blocks.activations import ReLU
 from ..dropout import Dropout
 from ..linear import Linear
 from .common import Configs

@@ -11,7 +11,7 @@ import torch
 import torch.autograd
 from torch import Tensor, nn
 
-from .common import erf
+from ..common import erf
 
 
 class ActivationFunction(nn.Module):

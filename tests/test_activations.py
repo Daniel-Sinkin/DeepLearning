@@ -7,7 +7,7 @@ tests/test_relu.py
 import pytest
 import torch
 
-from src.activations import IdentityActivation, ReLU, Sigmoid
+from src.building_blocks.activations import IdentityActivation, ReLU, Sigmoid
 
 
 def test_relu_positive_pass_through():

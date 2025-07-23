@@ -18,7 +18,7 @@ import torch
 from torch import Tensor, nn
 
 from src.diffusion import DiffusionModel, get_beta_schedule_linear
-from src.unet import UNet  # for overriding with a tiny version
+from src.unet.unet import UNet  # for overriding with a tiny version
 
 # ---------------------------------------------------------------------
 # Global fixtures / seeding

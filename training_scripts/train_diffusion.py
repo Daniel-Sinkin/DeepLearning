@@ -11,7 +11,7 @@ from torch import Tensor, nn
 from torch.optim import AdamW
 from torchvision.utils import save_image
 
-from src.dataset_cifar import get_data
+from src.dataset.dataset_cifar import get_data
 from src.diffusion_model import DiffusionModel, get_beta_schedule_linear
 
 # ------------------------------------------------------------

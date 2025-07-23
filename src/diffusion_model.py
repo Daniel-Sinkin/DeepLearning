@@ -8,8 +8,8 @@ from torch import Tensor, is_deterministic_algorithms_warn_only_enabled, nn
 from torchgen.api.ufunc import kernel_name
 
 from .common import assert_shape
-from .dataset_cifar import CIFARImages
-from .unet import UNet
+from .dataset.dataset_cifar import CIFARImages
+from .unet.unet import UNet
 
 T_ = "T"
 B_ = "B"

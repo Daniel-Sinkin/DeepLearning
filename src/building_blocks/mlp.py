@@ -6,7 +6,11 @@ from typing import Type
 
 from torch import Tensor, nn
 
-from src.activations import ActivationFunction, ActivationName, get_activation
+from src.building_blocks.activations import (
+    ActivationFunction,
+    ActivationName,
+    get_activation,
+)
 
 from .linear import Linear
 from .transformer.common import Configs  # TODO: Don't use the transformer configs here

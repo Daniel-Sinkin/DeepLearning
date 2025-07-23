@@ -8,7 +8,7 @@ import pytest
 import torch
 import torch.nn as nn
 
-from src.activations import ActivationName
+from src.building_blocks.activations import ActivationName
 from src.common import WeightInitType
 from src.mlp import MultiLayerPerceptron
 from src.transformer.common import Configs
