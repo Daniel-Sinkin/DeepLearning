@@ -13,8 +13,14 @@ def f(x: Tensor) -> Tensor:
     return np.sin(x - 0.5)
 
 
-def se(x: float, y: float, ell: float = 1.0) -> float:
-    return float(np.exp(-0.5 * ((x - y) / ell) ** 2))
+def get_covariance_from_kernel(X: np.ndarray, Y: np.ndarray) -> np.ndarray:
+    X = X[:, np.newaxis]
+    assert X.shape == (len(X), 1)
+    Y = Y[np.newaxis, :]
+    assert Y.shape == (1, len(Y))
+    sq_dist = (X - Y) ** 2
+    assert sq_dist.shape == (len(X), len(Y))
+    return np.exp(-0.5 * sq_dist)
 
 
 def main() -> None:
@@ -26,22 +32,9 @@ def main() -> None:
     y_train = f(x_train)
     n_train = len(x_train)
 
-    K_XX = np.zeros((n_train, n_train))
-    for y in range(n_train):
-        for x in range(n_train):
-            K_XX[y, x] = se(x_train[y], x_train[x])
-    K_XX += 1e-6 * np.eye(n_train)  # For numerical Stability
-
-    K_XS = np.zeros((n_train, n))
-    for y in range(n_train):
-        for x in range(n):
-            K_XS[y, x] = se(x_train[y], xs[x])
-
-    K_SS = np.zeros((n, n))
-    for y in range(n):
-        for x in range(n):
-            K_SS[y, x] = se(xs[y], xs[x])
-    K_SS += 1e-6 * np.eye(n)  # For numerical Stability
+    K_XX = get_covariance_from_kernel(x_train, x_train) + 1e-6 * np.eye(n_train)
+    K_XS = get_covariance_from_kernel(x_train, xs)
+    K_SS = get_covariance_from_kernel(xs, xs) + 1e-6 * np.eye(n)
 
     means = K_XS.T @ np.linalg.inv(K_XX) @ y_train
     covariances = K_SS - K_XS.T @ np.linalg.inv(K_XX) @ K_XS
