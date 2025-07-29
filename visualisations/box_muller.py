@@ -14,7 +14,7 @@ def generate_uniform_pairs(
     n_pairs: int, seed: int = 0
 ) -> Tuple[npt.NDArray[np.float64], np.random.Generator]:
     """
-    Generate 2×n_pairs i.i.d. uniform samples on [-1, 1]^2 and return them with a reproducible RNG.
+    Generate 2xn_pairs i.i.d. uniform samples on [-1, 1]^2 and return them with a reproducible RNG.
 
     Args:
         n_pairs: Number of pairs to generate.
@@ -77,7 +77,7 @@ def figure_square_disk(
     out_dir: Path,
 ) -> None:
     """
-    Create and save a 1×2 figure: scatter of accepted/rejected points and radial histogram with p(r)=2r.
+    Create and save a 1x2 figure: scatter of accepted/rejected points and radial histogram with p(r)=2r.
 
     Args:
         samples: Array of shape (2, n).
@@ -149,7 +149,7 @@ def figure_ring_highlight(
     out_dir: Path,
 ) -> Tuple[npt.NDArray[np.bool_], float, float]:
     """
-    Create and save a 1×2 figure that highlights a radial bin both in the scatter and in the histogram.
+    Create and save a 1x2 figure that highlights a radial bin both in the scatter and in the histogram.
 
     Args:
         samples: Array of shape (2, n).
@@ -243,7 +243,7 @@ def box_muller_transform(
     r2_keep: npt.NDArray[np.float64],
 ) -> Tuple[npt.NDArray[np.float64], npt.NDArray[np.float64], npt.NDArray[np.bool_]]:
     """
-    Apply the polar Box–Muller transform to accepted uniform pairs.
+    Apply the polar Box-Muller transform to accepted uniform pairs.
 
     Args:
         samples_keep: Accepted points of shape (2, m).
@@ -269,7 +269,7 @@ def figure_normals(
     out_dir: Path,
 ) -> None:
     """
-    Create and save a 1×2 figure: scatter of (Z1, Z2) and histogram of Z2 with N(0,1) overlay.
+    Create and save a 1x2 figure: scatter of (Z1, Z2) and histogram of Z2 with N(0,1) overlay.
 
     Args:
         z1: First standard normal sample array.
@@ -281,7 +281,7 @@ def figure_normals(
     ax_scatter.set_aspect("equal")
     ax_scatter.set_xlabel("Z1 ~ N(0,1)")
     ax_scatter.set_ylabel("Z2 ~ N(0,1)")
-    ax_scatter.set_title("Box–Muller: Scatter of Standard Normals")
+    ax_scatter.set_title("Box-Muller: Scatter of Standard Normals")
     ax_scatter.grid(True, linestyle=":", linewidth=0.5)
     ax_hist.hist(z2, bins=30, density=True, alpha=0.75, label="Empirical")
     x = np.linspace(min(-4.0, float(z2.min())), max(4.0, float(z2.max())), 400)
@@ -308,7 +308,7 @@ def figure_ring_mapping(
     out_dir: Path,
 ) -> None:
     """
-    Create and save a figure showing how the highlighted annulus maps under the Box–Muller transform.
+    Create and save a figure showing how the highlighted annulus maps under the Box-Muller transform.
 
     Args:
         z1: First standard normal sample array.
@@ -335,14 +335,14 @@ def figure_ring_mapping(
     rho_in = float(np.sqrt(-2.0 * np.log(hi**2)))
     rho_out = float(np.sqrt(-2.0 * np.log(lo**2)))
     for rho in (rho_in, rho_out):
-        circ = plt.Circle(
+        circ = plt.Circle(  # type: ignore
             (0, 0), rho, color="black", linestyle="--", fill=False, alpha=0.6
         )
         ax.add_artist(circ)
     ax.set_aspect("equal")
     ax.set_xlabel("Z1 ~ N(0,1)")
     ax.set_ylabel("Z2 ~ N(0,1)")
-    ax.set_title("Box–Muller: Image of Highlighted Ring")
+    ax.set_title("Box-Muller: Image of Highlighted Ring")
     ax.legend()
     ax.grid(True, linestyle=":", linewidth=0.5)
     plt.tight_layout()
