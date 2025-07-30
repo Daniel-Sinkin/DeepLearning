@@ -9,15 +9,9 @@ Implementation of different deep learning specific things
 # Visualisations
 ## Rejection Sampling
 Suppose we want to sample a complex distribution $p(z)$ what is easy to evaluate if we ignore
-normalisation, i.e., such that
-$$
-\tilde{p}(z) = C p(z)
-$$
+normalisation, i.e., such that $\tilde{p}(z) = C p(z)$
 C > 0 is easy to evaluate. Take some simple to evaluate distribution $q(z)$ (for example normal)
-and find $k > 0$ such that
-$$
-kq(z) > \tilde{p}(z)
-$$
+and find $k > 0$ such that $kq(z) > \tilde{p}(z)$
 for all $z$. Then do uniform sampling on $\xi \sim U(0, kq(z_0))$ and accept if $\xi \leq \tilde{p}(z)$,
 reject otherwise. The acceptance rate is proportional to $\frac{1}{k}$ so we want to have k
 as small as possible.
