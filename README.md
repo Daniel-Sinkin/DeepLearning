@@ -13,7 +13,7 @@ which shows the "Ridge" that we get with overfitting explicitly
 ![Ridge Regression Plot](visualisations/plots/ridge_regression.png)
 ## Curve Fitting
 Assuming we are fitting a curve with Gaussian Noise, then for any fixed x value the distribution
-of the target value is given as follows (based on )
+of the target value is given as follows (based on Figure 1.28 in Bishop, *Pattern Recognition and Machine Learning*, 2006)
 ![Curve Fitting Gaussian](visualisations/plots/prob_regression_for_curve_fitting_plot.png)
 ## PCA
 We take our samples $X = \{x_1, \dots, x_N\} \subseteq \mathbb{R}^D$ and construct the covariance matrix
@@ -91,4 +91,4 @@ With added noise
 ![Gaussian Process Kernel Heatmap](visualisations/plots/gaussian_process/gaussian_process_kernel_heatmaps.png)
 
 # References
-* 
+* Bishop, C. M. (2006). *Pattern Recognition and Machine Learning*. Springer.
