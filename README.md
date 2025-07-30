@@ -7,6 +7,21 @@ Implementation of different deep learning specific things
 * LeNet
 
 # Visualisations
+## Rejection Sampling
+Suppose we want to sample a complex distribution $p(z)$ what is easy to evaluate if we ignore
+normalisation, i.e., such that
+$$
+\tilde{p}(z) = C p(z)
+$$
+C > 0 is easy to evaluate. Take some simple to evaluate distribution $q(z)$ (for example normal)
+and find $k > 0$ such that
+$$
+kq(z) > \tilde{p}(z)
+$$
+for all $z$. Then do uniform sampling on $\xi \sim U(0, kq(z_0))$ and accept if $\xi \leq \tilde{p}(z)$,
+reject otherwise. The acceptance rate is proportional to $\frac{1}{k}$ so we want to have k
+as small as possible.
+![Rejection Sampling](visualisations/plots/rejection_sampling.png)
 ## Ridge Regression
 Here I implemented the discussion in this stackexchange answer https://stats.stackexchange.com/a/151351
 which shows the "Ridge" that we get with overfitting explicitly
