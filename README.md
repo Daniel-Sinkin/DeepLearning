@@ -1,5 +1,7 @@
 # DeepLearning
 Implementation of different deep learning specific things
 
-# Things Implemented:
-Attention is All you Need (2017) Transformer (Decoder only)
+# Implementations
+* Encoder-Decoder Transformer in PyTorch, build to be aligned with Vasvani et al. 2017
+* UNet based diffusion Model
+* LeNet
