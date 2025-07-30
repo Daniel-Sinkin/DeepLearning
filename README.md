@@ -17,9 +17,9 @@ of the target value is given as follows (based on Figure 1.28 in Bishop, *Patter
 ![Curve Fitting Gaussian](visualisations/plots/prob_regression_for_curve_fitting_plot.png)
 ## PCA
 We take our samples $X = \{x_1, \dots, x_N\} \subseteq \mathbb{R}^D$ and construct the covariance matrix
-$$
+$
 \Sigma_X = \sum_{i = 1}^N x_i^\top x_i.
-$$
+$
 This is a symmetric positive definite matrix (assuming all samples are linearly independent) as such
 it has $N$ eigenvectors $v_1, \dots, v_N$ and $n$ positive (!) eigenvalues $\lambda_1, \dots, \lambda_N$,
 without loss of generality we can assume that $\lambda_1 \geq \lambda_2 \geq \dots \lambda_N$.
@@ -29,9 +29,9 @@ The first $k$ eigenvectors then give us the most important  to extract the most 
 ## Effect of regularisation
 Suppose we have a covariance matrix $\Sigma \in \mathbb{R}^{N \times N}$, we can regularise by
 making the diagonal more dominant, applying so-called Tychonoff (or Tikhonov) Regularisation:
-$$
+$
 \Sigma_\alpha = \alpha I_{N \times N} + \Sigma
-$$
+$
 The effect of this is it makes the underlying equicontours more spherical, in the sense that
 the eigenvalues are closer together ($\lambda_i / \lambda_{i + 1}$ goes closer to 1)
 ![Regularisation](visualisations/plots/covariance_regularisation.png)
@@ -40,24 +40,24 @@ A somewhat efficient algorithm for sample standard normal random variable using 
 uniforms distributed variables. Suppose we want to sample $2N$ standard normal variables.
 
 First start with $X^{(0)} := \{(x_i, y_i) : 1 \leq i \leq N\}$ random variables such that
-$$
+$
 x_i, y_i \sim U(0, 1)
-$$
+$
 and reject all samples where
-$$
+$
 r_i^2 := x_i^2 + y_i^2 > 1.0,
-$$
+$
 giving us
-$$
+$
 X^{(1)} = \{(x_i, y_i) \in X : r_i^2 \leq 1.0\}.
-$$
+$
 ![BM Square Disk](visualisations/plots/box_mueller/box_mueller_square_disk.png)
 We then apply the transform
-$$
+$
 \begin{aligned}
 s_i^{(1)} = x_i \sqrt{\frac{-2\log(r_i^2)}{r_i^2}},&&s_i^{(2)} = y_i \sqrt{\frac{-2\log(r_i^2)}{r_i^2}},
 \end{aligned}
-$$
+$
 it can be shown that $s_i^{(1)}$ and $s_i^{(1)}$ are iid with $s_i^{(j)} \sim \mathcal{N}(0, 1)$.
 ![BM Square Disk](visualisations/plots/box_mueller/box_mueller_normals.png)
 
@@ -68,9 +68,9 @@ what the transformation does by highlighting a particular slice
 # Integral Density
 When doing Bayesian inference, if $p(\hat{\theta}|x)$ is very close to 1 for a particular $\hat{\theta}$
 and close to $0$ for all others then
-$$
+$
 p(x|X) \approx p(X|\hat{\theta})
-$$
+$
 This visualises this phenomonon
 ![Integral Density 0020 2600](visualisations/plots/integral_density/integral_density_var0020_theta2600.png)
 ![Integral Density 0330 2000](visualisations/plots/integral_density/integral_density_var0330_theta2000.png)
