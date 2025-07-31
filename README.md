@@ -23,15 +23,21 @@ as small as possible.
   <img src="visualisations/plots/rejection_sampling/rejection_sampling_4_11.png" width="45%" />
   <img src="visualisations/plots/rejection_sampling/rejection_sampling_7_5.png" width="45%" />
 </p>
+
 ## Ridge Regression
+
 Here I implemented the discussion in this stackexchange answer https://stats.stackexchange.com/a/151351
 which shows the "Ridge" that we get with overfitting explicitly
 ![Ridge Regression Plot](visualisations/plots/ridge_regression.png)
+
 ## Curve Fitting
+
 Assuming we are fitting a curve with Gaussian Noise, then for any fixed x value the distribution
 of the target value is given as follows (based on Figure 1.28 in Bishop, *Pattern Recognition and Machine Learning*, 2006)
 ![Curve Fitting Gaussian](visualisations/plots/prob_regression_for_curve_fitting_plot.png)
+
 ## PCA
+
 We take our samples $X = \{x_1, \dots, x_N\} \subseteq \mathbb{R}^D$ and construct the covariance matrix $\Sigma_X = \sum_{i = 1}^N x_i^\top x_i$.
 This is a symmetric positive definite matrix (assuming all samples are linearly independent) as such
 it has $N$ eigenvectors $v_1, \dots, v_N$ and $n$ positive (!) eigenvalues $\lambda_1, \dots, \lambda_N$,
@@ -39,13 +45,17 @@ without loss of generality we can assume that $\lambda_1 \geq \lambda_2 \geq \do
 
 The first $k$ eigenvectors then give us the most important  to extract the most important components
 ![PCA](visualisations/plots/pca_visualisation.png)
+
 ## Effect of regularisation
+
 Suppose we have a covariance matrix $\Sigma \in \mathbb{R}^{N \times N}$, we can regularise by
 making the diagonal more dominant, applying so-called Tychonoff (or Tikhonov) Regularisation: $\Sigma_\alpha = \alpha I_{N \times N} + \Sigma$
 The effect of this is it makes the underlying equicontours more spherical, in the sense that
 the eigenvalues are closer together ($\lambda_i / \lambda_{i + 1}$ goes closer to 1)
 ![Regularisation](visualisations/plots/covariance_regularisation.png)
+
 ## Box Muller
+
 A somewhat efficient algorithm for sample standard normal random variable using a transform on
 uniforms distributed variables. Suppose we want to sample $2N$ standard normal variables.
 
@@ -59,7 +69,9 @@ This uses the rotational symmetry of the 2 dimensional normal distribution. We c
 what the transformation does by highlighting a particular slice
 ![BM Slice](visualisations/plots/box_mueller/box_mueller_ring_highlight.png)
 ![BM Slice](visualisations/plots/box_mueller/box_mueller_ring_mapped.png)
+
 # Integral Density
+
 When doing Bayesian inference, if $p(\hat{\theta}|x)$ is very close to 1 for a particular $\hat{\theta}$
 and close to $0$ for all others then $p(x|X) \approx p(X|\hat{\theta})$
 This visualises this phenomonon
@@ -68,6 +80,7 @@ This visualises this phenomonon
 ![Integral Density 1000 2650](visualisations/plots/integral_density/integral_density_var1000_theta2650.png)
 
 ## Gaussian Process
+
 Normal
 ![Gaussian Process](visualisations/plots/gaussian_process/gaussian_process.png)
 With added noise
