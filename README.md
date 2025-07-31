@@ -10,34 +10,24 @@ Implementation of different deep learning specific things
 These visualisations are created for this blog post: https://daniel-sinkin.github.io/2025/07/31/Bishop-Visualisation.html
 
 ## Markov Chain Monte Carlo
-Suppose we have a sample point (in this example $z_t = (x_t, y_t) \in \mathbb{R}^2$) then we sample
-a pre-defined proposal distribution, for the basic Metropolis algorithm it needs to be symmetric
-in the sense that
-$$
-p(x|y) = p(y|x)
-$$
-holds. Isotropic multivariate gaussian $\mathcal{N}(0, \sigma^2 I)$ and uniform distribution $U((-a, a) \times (-a, a))$
-both satisfy this condition. For this example we are taking an the gaussian distribution as proposal
-function.
+Suppose we have a sample point (in this example $z_t = (x_t, y_t) \in \mathbb{R}^2$). We sample
+a pre-defined proposal distribution. For the basic Metropolis algorithm, it needs to be symmetric,
+in the sense that $p(x|y) = p(y|x)$ holds. Isotropic multivariate Gaussian $\mathcal{N}(0, \sigma^2 I)$ and uniform distribution $U((-a, a) \times (-a, a))$
+both satisfy this condition. In this example, we use a Gaussian distribution as the proposal function.
 
-We sample a direction $\delta \sim \mathcal{N}(0, \sigma^2 I)$ and for our target function
-(a unnormalised distribution) $\tilde{p}$ we compute the (possibly overflowing) acceptance value
-of this step as follows:
-$$
-\tilde{A}(z_t, z_t + \delta) := \frac{p(z_t + \delta)}{p(z_t)},
-$$
-As we want an acceptance **probability** we need to clip it to be at most 1:
-$$
-A(z_t, z_t + \delta) = \min(1, \tilde{A}(z_t, z_t + \delta)) = \min\left(1, \frac{p(z_t + \delta)}{p(z_t)}\right) \leq 1
-$$
-We then accept this step with probability $A(z_t, z_t + \delta)$, this is done by sampling
-$$
-u \sim U(0, 1)
-$$
-and checking if $u \leq A(z_t, z_t + \delta)$ (which of course is always the case if $\tilde{A}(z_t, z_t + \delta) >= 1.0$.
+We sample a direction $\delta \sim \mathcal{N}(0, \sigma^2 I)$, and for our target function
+(an unnormalised distribution) $\tilde{p}$, we compute the (possibly overflowing) acceptance value
+of this step as follows: $\tilde{A}(z_t, z_t + \delta) := \frac{p(z_t + \delta)}{p(z_t)}$.
 
-If we accept then we define $z_{t + 1} = z_t + \delta$ and if we reject then we simply discard the
+As we want an acceptance **probability**, we clip it to be at most 1:
+$A(z_t, z_t + \delta) = \min(1, \tilde{A}(z_t, z_t + \delta)) = \min\left(1, \frac{p(z_t + \delta)}{p(z_t)}\right)$.
+
+We then accept this step with probability $A(z_t, z_t + \delta)$, which is done by sampling
+$u \sim U(0, 1)$ and checking if $u \leq A(z_t, z_t + \delta)$ (which is always true if $\tilde{A}(z_t, z_t + \delta) \geq 1.0$).
+
+If we accept, we define $z_{t + 1} = z_t + \delta$; if we reject, we simply discard the
 step and remain at the same position, i.e., $z_{t + 1} = z_t$.
+
 <p align="center">
   <img src="visualisations/plots/mcmc/mcmc_elongated_gaussian_path.png" height="600">
   <img src="visualisations/plots/mcmc/mcmc_elongated_gaussian_heatmap.png" height="600">
@@ -46,7 +36,6 @@ step and remain at the same position, i.e., $z_{t + 1} = z_t$.
   <img src="visualisations/plots/mcmc/mcmc_mixture_of_gaussians_path.png" height="600">
   <img src="visualisations/plots/mcmc/mcmc_mixture_of_gaussians_heatmap.png" height="600">
 </p>
-
 ## Rejection Sampling
 Suppose we want to sample a complex distribution $p(z)$ what is easy to evaluate if we ignore
 normalisation, i.e., such that $\tilde{p}(z) = C p(z)$
