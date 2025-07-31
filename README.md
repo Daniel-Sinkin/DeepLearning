@@ -1,15 +1,19 @@
-# DeepLearning
+# Introduction
+
 Implementation of different deep learning specific things
 
 # Implementations
+
 * Encoder-Decoder Transformer in PyTorch, build to be aligned with Vasvani et al. 2017
 * UNet based diffusion Model
 * LeNet
 
 # Visualisations
+
 These visualisations are created for this blog post: https://daniel-sinkin.github.io/2025/07/31/Bishop-Visualisation.html
 
 ## Markov Chain Monte Carlo
+
 Suppose we have a sample point (in this example $z_t = (x_t, y_t) \in \mathbb{R}^2$). We sample
 a pre-defined proposal distribution. For the basic Metropolis algorithm, it needs to be symmetric,
 in the sense that $p(x|y) = p(y|x)$ holds. Isotropic multivariate Gaussian $\mathcal{N}(0, \sigma^2 I)$ and uniform distribution $U((-a, a) \times (-a, a))$
@@ -36,10 +40,11 @@ step and remain at the same position, i.e., $z_{t + 1} = z_t$.
   <img src="visualisations/plots/mcmc/mcmc_mixture_of_gaussians_path.png" height="600">
   <img src="visualisations/plots/mcmc/mcmc_mixture_of_gaussians_heatmap.png" height="600">
 </p>
+
 ## Rejection Sampling
+
 Suppose we want to sample a complex distribution $p(z)$ what is easy to evaluate if we ignore
-normalisation, i.e., such that $\tilde{p}(z) = C p(z)$
-C > 0 is easy to evaluate. Take some simple to evaluate distribution $q(z)$ (for example normal)
+normalisation, i.e., such that $\tilde{p}(z) = C p(z), C > 0$ is easy to evaluate. Take some simple to evaluate distribution $q(z)$ (for example normal)
 and find $k > 0$ such that $kq(z) > \tilde{p}(z)$
 for all $z$. Then do uniform sampling on $\xi \sim U(0, kq(z_0))$ and accept if $\xi \leq \tilde{p}(z)$,
 reject otherwise. The acceptance rate is proportional to $\frac{1}{k}$ so we want to have k
@@ -116,11 +121,13 @@ With added noise
 ![Gaussian Process Noise](visualisations/plots/gaussian_process/gaussian_process_noisy.png)
 
 ### Contribution Histograms
+
 ![Gaussian Process Hist 50](visualisations/plots/gaussian_process/gaussian_process_interactive_hist_50.png)
 ![Gaussian Process Hist 65](visualisations/plots/gaussian_process/gaussian_process_interactive_hist_65.png)
 ![Gaussian Process Hist 105](visualisations/plots/gaussian_process/gaussian_process_interactive_hist_105.png)
 
 ### Heatmap of different Kernels
+
 ![Gaussian Process Kernel Heatmap](visualisations/plots/gaussian_process/gaussian_process_kernel_heatmaps.png)
 
 # References
