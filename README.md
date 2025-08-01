@@ -12,6 +12,9 @@ Implementation of different deep learning specific things
 
 These visualisations are created for this blog post: https://daniel-sinkin.github.io/2025/07/31/Bishop-Visualisation.html
 
+## EM Algo
+![EM Algo](visualisations/plots/em_algo.png)
+
 ## Markov Chain Monte Carlo
 
 Suppose we have a sample point (in this example $z_t = (x_t, y_t) \in \mathbb{R}^2$). We sample
