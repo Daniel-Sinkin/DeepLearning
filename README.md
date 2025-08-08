@@ -20,12 +20,13 @@ $$
 (1.1, -0.1, 0.2, 0.3, -0.2) \in \mathbb{R}^5
 $$
 and a DAE would for example try to learn to squish all coordinates that are not the first one to 0.
+
+In this example I trained a simple 5 -> 16 -> 16 -> 5 MLP with ReLU activation for the denoising.
 <p align="center">
   <img src="visualisations/plots/dae/low_dim_model/coord0_recovery.png" height="450">
   <img src="visualisations/plots/dae/low_dim_model/nuisance_dims_hist.png" height="450">
   <img src="visualisations/plots/dae/low_dim_model/scatter_0_vs_1.png" height="600">
 </p>
-
 
 ### Manifold projection
 Inspired by https://www.deeplearningbook.org Chapter 14 Autoencoders Page 512.
