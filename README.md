@@ -12,6 +12,28 @@ Implementation of different deep learning specific things
 
 These visualisations are created for this blog post: https://daniel-sinkin.github.io/2025/07/31/Bishop-Visualisation.html
 
+## Denoising Auto Encoder
+
+### Low dimensional example
+Suppose we have natural data laying in $\{(x, 0, 0, 0, 0) : x \in \mathbb{R}\} \subseteq{R}^5$, this forms a 1 dimensional manifold (due to it being a subvectorspace). If there is noise applied to for example the natural data $(1, 0, 0, 0, 0)$ we might get something like
+$$
+(1.1, -0.1, 0.2, 0.3, -0.2) \in \mathbb{R}^5
+$$
+and a DAE would for example try to learn to squish all coordinates that are not the first one to 0.
+<p align="center">
+  <img src="visualisations/plots/dae/low_dim_model/coord0_recovery.png" height="450">
+  <img src="visualisations/plots/dae/low_dim_model/nuisance_dims_hist.png" height="450">
+  <img src="visualisations/plots/dae/low_dim_model/scatter_0_vs_1.png" height="600">
+</p>
+
+
+### Manifold projection
+Inspired by https://www.deeplearningbook.org Chapter 14 Autoencoders Page 512.
+<p align="center">
+  <img src="visualisations/plots/dae/dae_h_line.png" height="600">
+  <img src="visualisations/plots/dae/dae_spiral.png" height="600">
+</p>
+
 ## EM Algo
 ![EM Algo](visualisations/plots/em_algo.png)
 
